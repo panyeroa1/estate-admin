@@ -77,6 +77,21 @@ const App: React.FC = () => {
     };
   }, []);
 
+  // Sync dark mode class to document root/body for Tailwind
+  useEffect(() => {
+    const root = document.documentElement;
+    const body = document.body;
+    if (settings.darkMode) {
+      root.classList.add('dark');
+      body.classList.add('bg-gray-900', 'text-gray-50');
+      body.classList.remove('bg-gray-50', 'text-gray-900');
+    } else {
+      root.classList.remove('dark');
+      body.classList.add('bg-gray-50', 'text-gray-900');
+      body.classList.remove('bg-gray-900', 'text-gray-50');
+    }
+  }, [settings.darkMode]);
+
   // Fetch initial data
   useEffect(() => {
     if (sessionLoading) return;
