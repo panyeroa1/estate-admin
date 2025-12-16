@@ -243,6 +243,8 @@ const App: React.FC = () => {
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setSidebarOpen(true)}
+              aria-label="Open navigation menu"
+              type="button"
               className="lg:hidden p-2 hover:bg-gray-100 rounded-lg text-gray-600"
             >
               <Menu size={24} />
