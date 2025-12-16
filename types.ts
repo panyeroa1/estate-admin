@@ -89,6 +89,7 @@ export interface AppSettings {
 }
 
 export type ViewState = 'dashboard' | 'inbox' | 'leads' | 'properties' | 'tasks' | 'calendar' | 'finance' | 'reports' | 'settings' | 'tools';
+export type UserRole = 'admin' | 'owner' | 'maintenance' | 'renter';
 
 export interface AppContextType {
   leads: Lead[];

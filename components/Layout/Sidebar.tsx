@@ -12,13 +12,14 @@ import {
   Wrench,
   X
 } from 'lucide-react';
-import { ViewState } from '../../types';
+import { ViewState, UserRole } from '../../types';
 
 interface SidebarProps {
   activeView: ViewState;
   onChangeView: (view: ViewState) => void;
   isOpen: boolean;
   onClose: () => void;
+  role: UserRole;
   badges: {
     inbox: number;
     leads: number;
@@ -28,25 +29,34 @@ interface SidebarProps {
   };
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activeView, onChangeView, isOpen, onClose, badges }) => {
-  const menuItems = [
+const Sidebar: React.FC<SidebarProps> = ({ activeView, onChangeView, isOpen, onClose, badges, role }) => {
+  const menuItems: { id: ViewState; label: string; icon: any; badge?: number }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'inbox', label: 'Inbox', icon: Inbox, badge: badges.inbox },
   ];
 
-  const businessItems = [
+  const businessItems: { id: ViewState; label: string; icon: any; badge?: number }[] = [
     { id: 'leads', label: 'Leads', icon: Users, badge: badges.leads },
     { id: 'properties', label: 'Properties', icon: Home, badge: badges.properties },
     { id: 'tasks', label: 'Tasks', icon: CheckSquare, badge: badges.tasks },
     { id: 'calendar', label: 'Calendar', icon: Calendar, badge: badges.calendar },
   ];
 
-  const managementItems = [
+  const managementItems: { id: ViewState; label: string; icon: any; badge?: number }[] = [
     { id: 'finance', label: 'Finance', icon: DollarSign },
     { id: 'reports', label: 'Reports', icon: BarChart2 },
     { id: 'tools', label: 'Tools', icon: Wrench, badge: 0 },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
+
+  const roleAllowed: Record<UserRole, ViewState[]> = {
+    admin: ['dashboard', 'inbox', 'leads', 'properties', 'tasks', 'calendar', 'finance', 'reports', 'settings', 'tools'],
+    owner: ['dashboard', 'properties', 'finance', 'inbox', 'tasks', 'calendar', 'reports', 'settings'],
+    maintenance: ['dashboard', 'tasks', 'calendar', 'inbox', 'settings'],
+    renter: ['dashboard', 'properties', 'calendar', 'inbox', 'settings'],
+  };
+
+  const isAllowed = (view: ViewState) => roleAllowed[role].includes(view);
 
   const NavItem = ({ item }: { item: any }) => (
     <div 
@@ -64,7 +74,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onChangeView, isOpen, onC
         <item.icon size={20} />
         <span className="text-sm">{item.label}</span>
       </div>
-      {item.badge > 0 && (
+     {item.badge > 0 && (
         <span className="bg-blue-500 text-white text-[10px] font-bold px-1.5 h-5 min-w-[20px] rounded-full flex items-center justify-center">
           {item.badge}
         </span>
@@ -102,17 +112,17 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onChangeView, isOpen, onC
         </div>
 
         <div className="flex-1 overflow-y-auto py-4 scrollbar-thin">
-          {menuItems.map(item => <NavItem key={item.id} item={item} />)}
+          {menuItems.filter(item => isAllowed(item.id)).map(item => <NavItem key={item.id} item={item} />)}
 
           <div className="px-6 pt-6 pb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
             Business
           </div>
-          {businessItems.map(item => <NavItem key={item.id} item={item} />)}
+          {businessItems.filter(item => isAllowed(item.id)).map(item => <NavItem key={item.id} item={item} />)}
 
           <div className="px-6 pt-6 pb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
             Management
           </div>
-          {managementItems.map(item => <NavItem key={item.id} item={item} />)}
+          {managementItems.filter(item => isAllowed(item.id)).map(item => <NavItem key={item.id} item={item} />)}
         </div>
       </aside>
     </>

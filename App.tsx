@@ -7,7 +7,7 @@ import { useLocalStorage } from './hooks/useLocalStorage';
 import { supabase } from './lib/supabase';
 import type { Session } from '@supabase/supabase-js';
 import { 
-  Lead, Message, Property, Task, CalendarEvent, Transaction, AppSettings, ViewState 
+  Lead, Message, Property, Task, CalendarEvent, Transaction, AppSettings, ViewState, UserRole 
 } from './types';
 
 // Views
@@ -58,6 +58,7 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<Session | null>(null);
   const [sessionLoading, setSessionLoading] = useState(true);
+  const [role, setRole] = useLocalStorage<UserRole>('eburon_role', 'admin');
 
   // Auth session listener
   useEffect(() => {
@@ -91,6 +92,19 @@ const App: React.FC = () => {
       body.classList.remove('bg-gray-900', 'text-gray-50');
     }
   }, [settings.darkMode]);
+
+  useEffect(() => {
+    const roleLabelMap: Record<UserRole, string> = {
+      admin: 'Broker / Agent',
+      owner: 'Property Owner',
+      maintenance: 'Maintenance',
+      renter: 'Renter',
+    };
+    setSettings(prev => ({
+      ...prev,
+      profile: { ...prev.profile, role: roleLabelMap[role] },
+    }));
+  }, [role, setSettings]);
 
   // Fetch initial data
   useEffect(() => {
@@ -237,6 +251,20 @@ const App: React.FC = () => {
     setSession(null);
   };
 
+  // Role based views
+  const roleViews: Record<UserRole, ViewState[]> = {
+    admin: ['dashboard', 'inbox', 'leads', 'properties', 'tasks', 'calendar', 'finance', 'reports', 'settings', 'tools'],
+    owner: ['dashboard', 'properties', 'finance', 'inbox', 'tasks', 'calendar', 'reports', 'settings'],
+    maintenance: ['dashboard', 'tasks', 'calendar', 'inbox', 'settings'],
+    renter: ['dashboard', 'properties', 'calendar', 'inbox', 'settings'],
+  };
+
+  useEffect(() => {
+    if (!roleViews[role].includes(activeView)) {
+      setActiveView(roleViews[role][0]);
+    }
+  }, [role, activeView]);
+
   // --- Render Helpers ---
   const renderView = () => {
     if (loading) {
@@ -284,7 +312,7 @@ const App: React.FC = () => {
   }
 
   if (!session) {
-    return <AuthView />;
+    return <AuthView selectedRole={role} onRoleSelect={setRole} />;
   }
 
   return (
@@ -294,6 +322,7 @@ const App: React.FC = () => {
         onChangeView={setActiveView}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        role={role}
         badges={{
           inbox: messages.filter(m => !m.read).length,
           leads: leads.length,
