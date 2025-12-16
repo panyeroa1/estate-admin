@@ -67,6 +67,13 @@ export const AuthView: React.FC<AuthViewProps> = ({ selectedRole = 'admin', onRo
     }
   };
 
+  // Force renter role when in register mode
+  useEffect(() => {
+    if (mode === 'register') {
+      onRoleSelect?.('renter');
+    }
+  }, [mode, onRoleSelect]);
+
   // Check for password recovery hash
   useEffect(() => {
     const hash = window.location.hash;
@@ -129,6 +136,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ selectedRole = 'admin', onRo
         options: {
           data: {
             full_name: fullName,
+            role: 'renter',
           },
         },
       });
@@ -201,7 +209,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ selectedRole = 'admin', onRo
             {mode === 'login' && (
               <>
                 Or{' '}
-                <button onClick={() => setMode('register')} className="font-medium text-blue-600 hover:text-blue-500">
+                <button onClick={() => { setMode('register'); onRoleSelect?.('renter'); }} className="font-medium text-blue-600 hover:text-blue-500">
                   create a new account
                 </button>
               </>
@@ -225,27 +233,6 @@ export const AuthView: React.FC<AuthViewProps> = ({ selectedRole = 'admin', onRo
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-100">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-            {roles.map(role => (
-              <button
-                key={role.id}
-                type="button"
-                onClick={() => handleRoleSelect(role.id)}
-                className={`text-left p-3 rounded-lg border transition-all duration-150 active:scale-95 ${
-                  selectedRole === role.id
-                    ? 'border-blue-500 bg-blue-50 text-blue-900 shadow-sm'
-                    : 'border-gray-200 hover:border-blue-200 hover:bg-gray-50 text-gray-800'
-                }`}
-              >
-                <div className="flex items-center gap-2 font-semibold text-sm">
-                  <span className="p-2 rounded-md bg-gray-100 text-gray-700">{role.icon}</span>
-                  {role.label}
-                </div>
-                <p className="text-xs text-gray-500 mt-1">{role.desc}</p>
-              </button>
-            ))}
-          </div>
-
           {error && (
             <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg flex items-start gap-2 text-sm">
               <AlertCircle size={16} className="mt-0.5 shrink-0" />
