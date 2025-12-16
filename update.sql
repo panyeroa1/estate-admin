@@ -13,8 +13,7 @@ VALUES
   ('00000000-0000-0000-0000-000000000004', 'renter@eburon.ai', jsonb_build_object('role', 'renter'), NOW())
 ON CONFLICT (id) DO NOTHING;
 
--- NOTE: To set passwords in Supabase, you must use the auth admin API or the dashboard.
--- Alternatively, insert into auth.identities with bcrypt hashes. For quick setup via SQL:
--- 1) In the dashboard, create these users manually with the desired password (e.g., 000000).
--- 2) Or use Supabase CLI/Admin API: `supabase auth sign up --email ... --password ...`
--- Example CLI (service role): supabase auth admin create-user --email renter@eburon.ai --password 000000 --email-confirm true --user-meta '{"role":"renter"}'
+/* NOTE:
+   - Passwords cannot be set securely via plain SQL in Supabase.
+   - After running this script, set passwords for these users via the Supabase dashboard or the Admin API/CLI
+     (e.g., supabase auth admin create-user ...) to match your UI presets. */
