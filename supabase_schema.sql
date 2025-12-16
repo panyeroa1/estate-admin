@@ -1,4 +1,5 @@
--- Enable UUID extension
+-- Enable UUID generation (pgcrypto is available by default in Supabase, add it explicitly for clarity)
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Leads Table
