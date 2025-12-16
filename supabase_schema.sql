@@ -81,6 +81,15 @@ CREATE TABLE IF NOT EXISTS transactions (
   "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Users Table (app-side profile/role reference; Auth remains in auth.users)
+CREATE TABLE IF NOT EXISTS users (
+  "id" UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  "email" TEXT NOT NULL UNIQUE,
+  "fullName" TEXT,
+  "role" TEXT CHECK (role IN ('admin', 'owner', 'maintenance', 'renter')) DEFAULT 'renter',
+  "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Enable Row Level Security (RLS)
 ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
@@ -88,6 +97,7 @@ ALTER TABLE properties ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tasks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
 -- Create Policies (Public access for demo purposes, strictly speaking should be authenticated)
 -- Allow public access for now as per "make it deployable" without full auth system implementation context
@@ -97,3 +107,4 @@ CREATE POLICY "Public properties access" ON properties FOR ALL USING (true);
 CREATE POLICY "Public tasks access" ON tasks FOR ALL USING (true);
 CREATE POLICY "Public events access" ON events FOR ALL USING (true);
 CREATE POLICY "Public transactions access" ON transactions FOR ALL USING (true);
+CREATE POLICY "Public users access" ON users FOR ALL USING (true);

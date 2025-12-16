@@ -17,3 +17,15 @@ ON CONFLICT (id) DO NOTHING;
    - Passwords cannot be set securely via plain SQL in Supabase.
    - After running this script, set passwords for these users via the Supabase dashboard or the Admin API/CLI
      (e.g., supabase auth admin create-user ...) to match your UI presets. */
+
+-- Create app-side users table if missing
+CREATE TABLE IF NOT EXISTS users (
+  "id" UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  "email" TEXT NOT NULL UNIQUE,
+  "fullName" TEXT,
+  "role" TEXT CHECK (role IN ('admin', 'owner', 'maintenance', 'renter')) DEFAULT 'renter',
+  "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+CREATE POLICY IF NOT EXISTS "Public users access" ON users FOR ALL USING (true);
