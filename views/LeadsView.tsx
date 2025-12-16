@@ -59,12 +59,12 @@ const LeadsView: React.FC<LeadsViewProps> = ({ leads, addLead, deleteLead, updat
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Leads</h2>
-          <p className="text-gray-500">Manage and track your potential clients.</p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Leads</h2>
+          <p className="text-gray-500 dark:text-gray-400">Manage and track your potential clients.</p>
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+          className="flex items-center gap-2 bg-gray-900 dark:bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-gray-800 dark:hover:bg-blue-700 transition-colors"
         >
           <Plus size={18} />
           Add Lead
@@ -72,29 +72,29 @@ const LeadsView: React.FC<LeadsViewProps> = ({ leads, addLead, deleteLead, updat
       </div>
 
       {/* Filters & Search */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col sm:flex-row gap-4">
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
           <input 
             type="text" 
             placeholder="Search leads by name or email..." 
-            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg hover:bg-gray-50 text-gray-600">
+        <button className="flex items-center gap-2 px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
           <Filter size={18} />
           Filters
         </button>
       </div>
 
       {/* Leads Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-gray-50 border-b border-gray-100 text-xs uppercase text-gray-500 font-semibold tracking-wider">
+              <tr className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-700 text-xs uppercase text-gray-500 dark:text-gray-400 font-semibold tracking-wider">
                 <th className="px-6 py-4">Name</th>
                 <th className="px-6 py-4">Contact</th>
                 <th className="px-6 py-4">Status</th>
@@ -103,27 +103,27 @@ const LeadsView: React.FC<LeadsViewProps> = ({ leads, addLead, deleteLead, updat
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {filteredLeads.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-gray-400">
+                  <td colSpan={6} className="px-6 py-12 text-center text-gray-400 dark:text-gray-500">
                     <User size={48} className="mx-auto mb-3 opacity-20" />
                     <p>No leads found. Add one to get started.</p>
                   </td>
                 </tr>
               ) : (
                 filteredLeads.map(lead => (
-                  <tr key={lead.id} className="hover:bg-gray-50 group transition-colors">
+                  <tr key={lead.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 group transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-600 flex items-center justify-center font-bold text-xs">
                           {lead.name.charAt(0)}
                         </div>
-                        <span className="font-medium text-gray-900">{lead.name}</span>
+                        <span className="font-medium text-gray-900 dark:text-white">{lead.name}</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex flex-col text-sm text-gray-500">
+                      <div className="flex flex-col text-sm text-gray-500 dark:text-gray-400">
                         <span className="flex items-center gap-1"><Mail size={12}/> {lead.email}</span>
                         {lead.phone && <span className="flex items-center gap-1 mt-0.5"><Phone size={12}/> {lead.phone}</span>}
                       </div>
@@ -131,18 +131,18 @@ const LeadsView: React.FC<LeadsViewProps> = ({ leads, addLead, deleteLead, updat
                     <td className="px-6 py-4">
                       <StatusBadge status={lead.status} />
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600 capitalize">{lead.source}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
+                    <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-300 capitalize">{lead.source}</td>
+                    <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400">
                       {new Date(lead.lastContact).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-1 hover:bg-gray-200 rounded text-gray-500">
+                        <button className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded text-gray-500 dark:text-gray-400">
                           <MoreHorizontal size={16} />
                         </button>
                         <button 
                           onClick={() => deleteLead(lead.id)}
-                          className="text-xs text-red-600 hover:text-red-800 font-medium px-2 py-1 bg-red-50 rounded"
+                          className="text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-medium px-2 py-1 bg-red-50 dark:bg-red-900/20 rounded"
                         >
                           Delete
                         </button>
@@ -159,31 +159,31 @@ const LeadsView: React.FC<LeadsViewProps> = ({ leads, addLead, deleteLead, updat
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add New Lead">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
             <input 
               required
               type="text" 
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               value={formData.name || ''}
               onChange={e => setFormData({...formData, name: e.target.value})}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
               <input 
                 required
                 type="email" 
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 value={formData.email || ''}
                 onChange={e => setFormData({...formData, email: e.target.value})}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
               <input 
                 type="tel" 
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 value={formData.phone || ''}
                 onChange={e => setFormData({...formData, phone: e.target.value})}
               />
@@ -191,9 +191,9 @@ const LeadsView: React.FC<LeadsViewProps> = ({ leads, addLead, deleteLead, updat
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
               <select 
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 value={formData.status}
                 onChange={e => setFormData({...formData, status: e.target.value as any})}
               >
@@ -204,9 +204,9 @@ const LeadsView: React.FC<LeadsViewProps> = ({ leads, addLead, deleteLead, updat
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Source</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Source</label>
               <select 
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 value={formData.source}
                 onChange={e => setFormData({...formData, source: e.target.value})}
               >
@@ -218,10 +218,10 @@ const LeadsView: React.FC<LeadsViewProps> = ({ leads, addLead, deleteLead, updat
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
             <textarea 
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               value={formData.notes || ''}
               onChange={e => setFormData({...formData, notes: e.target.value})}
             />
@@ -230,7 +230,7 @@ const LeadsView: React.FC<LeadsViewProps> = ({ leads, addLead, deleteLead, updat
             <button 
               type="button" 
               onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+              className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
             >
               Cancel
             </button>

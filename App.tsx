@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Menu, Search, Bell, User, Plus } from 'lucide-react';
 import Sidebar from './components/Layout/Sidebar';
 import Modal from './components/UI/Modal';
+import CallWidget from './components/UI/CallWidget';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { 
   Lead, Message, Property, Task, CalendarEvent, Transaction, AppSettings, ViewState 
@@ -181,6 +182,9 @@ const App: React.FC = () => {
           </div>
         </div>
       </main>
+      
+      {/* Floating Call Widget */}
+      <CallWidget />
     </div>
   );
 };
