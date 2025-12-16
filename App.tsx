@@ -4,6 +4,7 @@ import Sidebar from './components/Layout/Sidebar';
 import Modal from './components/UI/Modal';
 import CallWidget from './components/UI/CallWidget';
 import { useLocalStorage } from './hooks/useLocalStorage';
+import { supabase } from './lib/supabase';
 import { 
   Lead, Message, Property, Task, CalendarEvent, Transaction, AppSettings, ViewState 
 } from './types';
@@ -36,57 +37,163 @@ const defaultSettings: AppSettings = {
 };
 
 const App: React.FC = () => {
-  // --- Persistent State ---
-  // We initialize with empty arrays to respect "no mock data" unless explicitly added by user
-  // For the purpose of a demo feeling "live" but respecting the prompt, we start clean.
-  const [leads, setLeads] = useLocalStorage<Lead[]>('eburon_leads', []);
-  const [messages, setMessages] = useLocalStorage<Message[]>('eburon_messages', []);
-  const [properties, setProperties] = useLocalStorage<Property[]>('eburon_properties', []);
-  const [tasks, setTasks] = useLocalStorage<Task[]>('eburon_tasks', []);
-  const [events, setEvents] = useLocalStorage<CalendarEvent[]>('eburon_events', []);
-  const [transactions, setTransactions] = useLocalStorage<Transaction[]>('eburon_transactions', []);
+  // --- Persistent State (now Supabase) ---
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  
+  // Keep settings local for now
   const [settings, setSettings] = useLocalStorage<AppSettings>('eburon_settings', defaultSettings);
 
   // --- UI State ---
   const [activeView, setActiveView] = useState<ViewState>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  
-  // Modal States
-  const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
-  const [isPropertyModalOpen, setIsPropertyModalOpen] = useState(false);
-  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-  const [isComposeModalOpen, setIsComposeModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch initial data
+  useEffect(() => {
+    const fetchAllData = async () => {
+      try {
+        setLoading(true);
+        const [
+          { data: leadsData },
+          { data: messagesData },
+          { data: propertiesData },
+          { data: tasksData },
+          { data: eventsData },
+          { data: transactionsData }
+        ] = await Promise.all([
+          supabase.from('leads').select('*').order('createdAt', { ascending: false }),
+          supabase.from('messages').select('*').order('date', { ascending: false }),
+          supabase.from('properties').select('*').order('createdAt', { ascending: false }),
+          supabase.from('tasks').select('*').order('createdAt', { ascending: false }),
+          supabase.from('events').select('*').order('date', { ascending: true }),
+          supabase.from('transactions').select('*').order('date', { ascending: false })
+        ]);
+
+        if (leadsData) setLeads(leadsData as unknown as Lead[]);
+        if (messagesData) setMessages(messagesData as unknown as Message[]);
+        if (propertiesData) setProperties(propertiesData as unknown as Property[]);
+        if (tasksData) setTasks(tasksData as unknown as Task[]);
+        if (eventsData) setEvents(eventsData as unknown as CalendarEvent[]);
+        if (transactionsData) setTransactions(transactionsData as unknown as Transaction[]);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllData();
+  }, []);
 
   // --- Actions ---
-  const generateId = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
+  // Note: We use the returned data from Supabase to ensure we have the real ID and formatted fields
 
-  const addLead = (data: Omit<Lead, 'id'>) => setLeads(prev => [{ ...data, id: generateId() }, ...prev]);
-  const updateLead = (id: string, data: Partial<Lead>) => setLeads(prev => prev.map(l => l.id === id ? { ...l, ...data } : l));
-  const deleteLead = (id: string) => setLeads(prev => prev.filter(l => l.id !== id));
+  const addLead = async (data: Omit<Lead, 'id'>) => {
+    const { data: newLead, error } = await supabase.from('leads').insert(data).select().single();
+    if (newLead && !error) setLeads(prev => [newLead as unknown as Lead, ...prev]);
+  };
 
-  const addProperty = (data: Omit<Property, 'id'>) => setProperties(prev => [{ ...data, id: generateId() }, ...prev]);
-  const updateProperty = (id: string, data: Partial<Property>) => setProperties(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
-  const deleteProperty = (id: string) => setProperties(prev => prev.filter(p => p.id !== id));
+  const updateLead = async (id: string, data: Partial<Lead>) => {
+    const { error } = await supabase.from('leads').update(data).eq('id', id);
+    if (!error) setLeads(prev => prev.map(l => l.id === id ? { ...l, ...data } : l));
+  };
 
-  const addTask = (data: Omit<Task, 'id'>) => setTasks(prev => [{ ...data, id: generateId() }, ...prev]);
-  const toggleTaskComplete = (id: string) => setTasks(prev => prev.map(t => t.id === id ? { ...t, completed: !t.completed, completedAt: !t.completed ? new Date().toISOString() : undefined } : t));
-  const deleteTask = (id: string) => setTasks(prev => prev.filter(t => t.id !== id));
+  const deleteLead = async (id: string) => {
+    const { error } = await supabase.from('leads').delete().eq('id', id);
+    if (!error) setLeads(prev => prev.filter(l => l.id !== id));
+  };
 
-  const addEvent = (data: Omit<CalendarEvent, 'id'>) => setEvents(prev => [...prev, { ...data, id: generateId() }]);
-  const deleteEvent = (id: string) => setEvents(prev => prev.filter(e => e.id !== id));
+  const addProperty = async (data: Omit<Property, 'id'>) => {
+    const { data: newProp, error } = await supabase.from('properties').insert(data).select().single();
+    if (newProp && !error) setProperties(prev => [newProp as unknown as Property, ...prev]);
+  };
 
-  const addTransaction = (data: Omit<Transaction, 'id'>) => setTransactions(prev => [{ ...data, id: generateId() }, ...prev]);
-  const deleteTransaction = (id: string) => setTransactions(prev => prev.filter(t => t.id !== id));
+  const updateProperty = async (id: string, data: Partial<Property>) => {
+    const { error } = await supabase.from('properties').update(data).eq('id', id);
+    if (!error) setProperties(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
+  };
 
-  const addMessage = (data: Omit<Message, 'id'>) => setMessages(prev => [{ ...data, id: generateId() }, ...prev]);
-  const markMessageRead = (id: string) => setMessages(prev => prev.map(m => m.id === id ? { ...m, read: true } : m));
-  const deleteMessage = (id: string) => setMessages(prev => prev.filter(m => m.id !== id));
+  const deleteProperty = async (id: string) => {
+    const { error } = await supabase.from('properties').delete().eq('id', id);
+    if (!error) setProperties(prev => prev.filter(p => p.id !== id));
+  };
+
+  const addTask = async (data: Omit<Task, 'id'>) => {
+    const { data: newTask, error } = await supabase.from('tasks').insert(data).select().single();
+    if (newTask && !error) setTasks(prev => [newTask as unknown as Task, ...prev]);
+  };
+
+  const toggleTaskComplete = async (id: string) => {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+    
+    const updates = { 
+      completed: !task.completed, 
+      completedAt: !task.completed ? new Date().toISOString() : null 
+    };
+    
+    const { error } = await supabase.from('tasks').update(updates).eq('id', id);
+    if (!error) setTasks(prev => prev.map(t => t.id === id ? { ...t, ...updates } : t));
+  };
+
+  const deleteTask = async (id: string) => {
+    const { error } = await supabase.from('tasks').delete().eq('id', id);
+    if (!error) setTasks(prev => prev.filter(t => t.id !== id));
+  };
+
+  const addEvent = async (data: Omit<CalendarEvent, 'id'>) => {
+    const { data: newEvent, error } = await supabase.from('events').insert(data).select().single();
+    if (newEvent && !error) setEvents(prev => [...prev, newEvent as unknown as CalendarEvent]);
+  };
+
+  const deleteEvent = async (id: string) => {
+    const { error } = await supabase.from('events').delete().eq('id', id);
+    if (!error) setEvents(prev => prev.filter(e => e.id !== id));
+  };
+
+  const addTransaction = async (data: Omit<Transaction, 'id'>) => {
+    const { data: newTx, error } = await supabase.from('transactions').insert(data).select().single();
+    if (newTx && !error) setTransactions(prev => [newTx as unknown as Transaction, ...prev]);
+  };
+
+  const deleteTransaction = async (id: string) => {
+    const { error } = await supabase.from('transactions').delete().eq('id', id);
+    if (!error) setTransactions(prev => prev.filter(t => t.id !== id));
+  };
+
+  const addMessage = async (data: Omit<Message, 'id'>) => {
+    const { data: newMsg, error } = await supabase.from('messages').insert(data).select().single();
+    if (newMsg && !error) setMessages(prev => [newMsg as unknown as Message, ...prev]);
+  };
+
+  const markMessageRead = async (id: string) => {
+    const { error } = await supabase.from('messages').update({ read: true }).eq('id', id);
+    if (!error) setMessages(prev => prev.map(m => m.id === id ? { ...m, read: true } : m));
+  };
+
+  const deleteMessage = async (id: string) => {
+    const { error } = await supabase.from('messages').delete().eq('id', id);
+    if (!error) setMessages(prev => prev.filter(m => m.id !== id));
+  };
 
   const updateSettings = (newSettings: Partial<AppSettings>) => setSettings(prev => ({ ...prev, ...newSettings }));
 
   // --- Render Helpers ---
   const renderView = () => {
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center h-full">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      );
+    }
+
     const props = {
       leads, messages, properties, tasks, events, transactions, settings,
       addLead, updateLead, deleteLead,
