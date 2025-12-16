@@ -9,6 +9,8 @@ interface SettingsViewProps {
 
 const SettingsView: React.FC<SettingsViewProps> = ({ settings, updateSettings }) => {
   const [form, setForm] = useState<AppSettings>(settings);
+  const inputClass =
+    "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-50 dark:placeholder-gray-400";
 
   useEffect(() => {
     setForm(settings);
@@ -55,7 +57,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, updateSettings })
               <input
                 type="text"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="settings-name"
                 value={form.profile.name}
                 onChange={e => updateProfile('name', e.target.value)}
@@ -65,7 +67,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, updateSettings })
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="settings-role">Role</label>
               <input
                 type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="settings-role"
                 value={form.profile.role}
                 onChange={e => updateProfile('role', e.target.value)}
@@ -76,7 +78,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, updateSettings })
               <input
                 type="email"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="settings-email"
                 value={form.profile.email}
                 onChange={e => updateProfile('email', e.target.value)}
@@ -86,7 +88,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, updateSettings })
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="settings-phone">Phone</label>
               <input
                 type="tel"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="settings-phone"
                 value={form.profile.phone}
                 onChange={e => updateProfile('phone', e.target.value)}
@@ -120,7 +122,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, updateSettings })
           <div>
             <label className="font-semibold text-gray-900 mb-2 block" htmlFor="settings-language">Language</label>
             <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className={inputClass}
               id="settings-language"
               value={form.language}
               onChange={e => setForm(prev => ({ ...prev, language: e.target.value }))}
@@ -134,7 +136,7 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, updateSettings })
           <div>
             <label className="font-semibold text-gray-900 mb-2 block" htmlFor="settings-timezone">Timezone</label>
             <select
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className={inputClass}
               id="settings-timezone"
               value={form.timezone}
               onChange={e => setForm(prev => ({ ...prev, timezone: e.target.value }))}

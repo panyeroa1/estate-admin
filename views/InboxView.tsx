@@ -59,6 +59,9 @@ const InboxView: React.FC<InboxViewProps> = ({ messages, addMessage, updateMessa
     setIsModalOpen(false);
   };
 
+  const inputClass =
+    "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-50 dark:placeholder-gray-400";
+
   const toggleStar = (id: string) => {
     const msg = messages.find(m => m.id === id);
     if (!msg) return;
@@ -89,7 +92,7 @@ const InboxView: React.FC<InboxViewProps> = ({ messages, addMessage, updateMessa
           <input
             type="search"
             placeholder="Search by sender or subject"
-            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-50 dark:placeholder-gray-400"
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
@@ -167,7 +170,7 @@ const InboxView: React.FC<InboxViewProps> = ({ messages, addMessage, updateMessa
               <input
                 type="text"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="message-sender"
                 value={draft.sender}
                 onChange={e => setDraft({ ...draft, sender: e.target.value })}
@@ -178,7 +181,7 @@ const InboxView: React.FC<InboxViewProps> = ({ messages, addMessage, updateMessa
               <input
                 type="email"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="message-email"
                 value={draft.email}
                 onChange={e => setDraft({ ...draft, email: e.target.value })}
@@ -190,7 +193,7 @@ const InboxView: React.FC<InboxViewProps> = ({ messages, addMessage, updateMessa
             <input
               type="text"
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className={inputClass}
               id="message-subject"
               value={draft.subject}
               onChange={e => setDraft({ ...draft, subject: e.target.value })}
@@ -201,7 +204,7 @@ const InboxView: React.FC<InboxViewProps> = ({ messages, addMessage, updateMessa
             <textarea
               required
               rows={5}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className={inputClass}
               id="message-body"
               value={draft.body}
               onChange={e => setDraft({ ...draft, body: e.target.value })}

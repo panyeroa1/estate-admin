@@ -41,6 +41,9 @@ const FinanceView: React.FC<FinanceViewProps> = ({ transactions, addTransaction,
     setFormData({ type: 'income', method: 'bank transfer', date: new Date().toISOString().slice(0, 10) });
   };
 
+  const inputClass =
+    "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-50 dark:placeholder-gray-400";
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between gap-4 sm:items-center">
@@ -140,7 +143,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ transactions, addTransaction,
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="tx-type">Type</label>
               <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="tx-type"
                 value={formData.type}
                 onChange={e => setFormData({ ...formData, type: e.target.value as Transaction['type'] })}
@@ -154,7 +157,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ transactions, addTransaction,
               <input
                 required
                 type="date"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="tx-date"
                 value={formData.date || ''}
                 onChange={e => setFormData({ ...formData, date: e.target.value })}
@@ -167,7 +170,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ transactions, addTransaction,
                 type="number"
                 min="0"
                 step="0.01"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="tx-amount"
                 value={formData.amount ?? ''}
                 onChange={e => setFormData({ ...formData, amount: Number(e.target.value) })}
@@ -180,7 +183,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ transactions, addTransaction,
               <input
                 required
                 type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="tx-description"
                 value={formData.description || ''}
                 onChange={e => setFormData({ ...formData, description: e.target.value })}
@@ -191,7 +194,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ transactions, addTransaction,
               <input
                 required
                 type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="tx-category"
                 value={formData.category || ''}
                 onChange={e => setFormData({ ...formData, category: e.target.value })}
@@ -203,7 +206,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ transactions, addTransaction,
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="tx-method">Method</label>
               <input
                 type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="tx-method"
                 value={formData.method || ''}
                 onChange={e => setFormData({ ...formData, method: e.target.value })}
@@ -213,7 +216,7 @@ const FinanceView: React.FC<FinanceViewProps> = ({ transactions, addTransaction,
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="tx-reference">Reference</label>
               <input
                 type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="tx-reference"
                 value={formData.reference || ''}
                 onChange={e => setFormData({ ...formData, reference: e.target.value })}

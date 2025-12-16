@@ -21,6 +21,9 @@ const TasksView: React.FC<TasksViewProps> = ({ tasks, addTask, toggleTaskComplet
     dueDate: new Date().toISOString().slice(0, 10),
   });
 
+  const inputClass =
+    "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-50 dark:placeholder-gray-400";
+
   const filteredTasks = useMemo(() => {
     return tasks.filter(task => {
       if (filter === 'open') return !task.completed;
@@ -127,7 +130,7 @@ const TasksView: React.FC<TasksViewProps> = ({ tasks, addTask, toggleTaskComplet
             <input
               required
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className={inputClass}
               id="task-title"
               value={formData.title || ''}
               onChange={e => setFormData({ ...formData, title: e.target.value })}
@@ -137,7 +140,7 @@ const TasksView: React.FC<TasksViewProps> = ({ tasks, addTask, toggleTaskComplet
             <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="task-description">Description</label>
             <textarea
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              className={inputClass}
               id="task-description"
               value={formData.description || ''}
               onChange={e => setFormData({ ...formData, description: e.target.value })}
@@ -149,7 +152,7 @@ const TasksView: React.FC<TasksViewProps> = ({ tasks, addTask, toggleTaskComplet
               <input
                 required
                 type="date"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="task-due"
                 value={formData.dueDate || ''}
                 onChange={e => setFormData({ ...formData, dueDate: e.target.value })}
@@ -158,7 +161,7 @@ const TasksView: React.FC<TasksViewProps> = ({ tasks, addTask, toggleTaskComplet
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="task-priority">Priority</label>
               <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="task-priority"
                 value={formData.priority}
                 onChange={e => setFormData({ ...formData, priority: e.target.value as Task['priority'] })}
@@ -173,7 +176,7 @@ const TasksView: React.FC<TasksViewProps> = ({ tasks, addTask, toggleTaskComplet
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="task-category">Category</label>
               <input
                 type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="task-category"
                 value={formData.category || ''}
                 onChange={e => setFormData({ ...formData, category: e.target.value })}

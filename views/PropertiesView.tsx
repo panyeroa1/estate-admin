@@ -79,6 +79,9 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
     return <span className={`px-2 py-1 rounded-full text-xs font-semibold ${styles[status]}`}>{status}</span>;
   };
 
+  const inputClass =
+    "w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900 placeholder-gray-500 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-50 dark:placeholder-gray-400";
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between gap-4 sm:items-center">
@@ -160,7 +163,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
               <input
                 required
                 type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="property-name"
                 value={formData.name || ''}
                 onChange={e => setFormData({ ...formData, name: e.target.value })}
@@ -171,7 +174,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
               <input
                 required
                 type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="property-address"
                 value={formData.address || ''}
                 onChange={e => setFormData({ ...formData, address: e.target.value })}
@@ -185,7 +188,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
                 required
                 type="number"
                 min="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="property-price"
                 value={formData.price ?? ''}
                 onChange={e => setFormData({ ...formData, price: Number(e.target.value) })}
@@ -194,7 +197,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="property-type">Type</label>
               <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="property-type"
                 value={formData.type}
                 onChange={e => setFormData({ ...formData, type: e.target.value as Property['type'] })}
@@ -205,7 +208,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="property-status">Status</label>
               <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="property-status"
                 value={formData.status}
                 onChange={e => setFormData({ ...formData, status: e.target.value as Property['status'] })}
@@ -220,7 +223,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
               <input
                 type="number"
                 min="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="property-bedrooms"
                 value={formData.bedrooms ?? ''}
                 onChange={e => setFormData({ ...formData, bedrooms: e.target.value ? Number(e.target.value) : undefined })}
@@ -231,7 +234,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
               <input
                 type="number"
                 min="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="property-bathrooms"
                 value={formData.bathrooms ?? ''}
                 onChange={e => setFormData({ ...formData, bathrooms: e.target.value ? Number(e.target.value) : undefined })}
@@ -242,7 +245,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
               <input
                 type="number"
                 min="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
                 id="property-size"
                 value={formData.size ?? ''}
                 onChange={e => setFormData({ ...formData, size: e.target.value ? Number(e.target.value) : undefined })}
