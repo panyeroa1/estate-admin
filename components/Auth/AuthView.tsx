@@ -51,8 +51,20 @@ export const AuthView: React.FC<AuthViewProps> = ({ selectedRole = 'admin', onRo
     { id: 'renter', label: 'Renter', desc: 'View properties, appointments, and inbox.', icon: <KeyRound size={18} /> },
   ];
 
+  const presets: Record<UserRole, { email: string; password: string }> = {
+    admin: { email: 'admin@eburon.ai', password: '000000' },
+    owner: { email: 'owner@eburon.ai', password: '000000' },
+    maintenance: { email: 'maintenance@eburon.ai', password: '000000' },
+    renter: { email: 'renter@eburon.ai', password: '000000' },
+  };
+
   const handleRoleSelect = (role: UserRole) => {
     onRoleSelect?.(role);
+    const preset = presets[role];
+    if (mode === 'login' && preset) {
+      setEmail(preset.email);
+      setPassword(preset.password);
+    }
   };
 
   // Check for password recovery hash
@@ -173,7 +185,7 @@ export const AuthView: React.FC<AuthViewProps> = ({ selectedRole = 'admin', onRo
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 overflow-y-auto">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="text-center">
           <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white mx-auto mb-4 shadow-lg shadow-blue-600/20">
@@ -372,6 +384,27 @@ export const AuthView: React.FC<AuthViewProps> = ({ selectedRole = 'admin', onRo
                 )}
               </button>
             </div>
+
+          {mode === 'login' && (
+            <div className="mt-4 flex items-center justify-center gap-4 text-gray-500">
+              {roles.map(role => (
+                <button
+                  key={role.id}
+                  type="button"
+                  onClick={() => handleRoleSelect(role.id)}
+                  className={`flex flex-col items-center text-xs font-semibold transition active:scale-95 ${
+                    selectedRole === role.id ? 'text-blue-600' : 'text-gray-500 hover:text-gray-700'
+                  }`}
+                  aria-label={`Quick select ${role.label}`}
+                >
+                  <span className={`p-2 rounded-full border ${selectedRole === role.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
+                    {role.icon}
+                  </span>
+                  <span className="mt-1">{role.label}</span>
+                </button>
+              ))}
+            </div>
+          )}
           </form>
 
           {mode === 'login' || mode === 'register' ? (
