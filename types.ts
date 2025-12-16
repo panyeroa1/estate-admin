@@ -26,12 +26,15 @@ export interface Property {
   name: string;
   address: string;
   price: number;
-  type: 'apartment' | 'house' | 'villa' | 'commercial' | 'land';
+  type: 'apartment' | 'house' | 'villa' | 'commercial' | 'land' | 'studio' | 'loft';
   bedrooms?: number;
   bathrooms?: number;
   size?: number;
   status: 'active' | 'pending' | 'sold' | 'rented';
   images?: string[];
+  energyClass?: string;
+  petsAllowed?: boolean;
+  coordinates?: unknown;
   createdAt: string;
 }
 

@@ -126,7 +126,7 @@ const App: React.FC = () => {
         ] = await Promise.all([
           supabase.from('leads').select('*').order('createdAt', { ascending: false }),
           supabase.from('messages').select('*').order('date', { ascending: false }),
-          supabase.from('properties').select('*').order('createdAt', { ascending: false }),
+          supabase.from('listings').select('*').order('created_at', { ascending: false }),
           supabase.from('tasks').select('*').order('createdAt', { ascending: false }),
           supabase.from('events').select('*').order('date', { ascending: true }),
           supabase.from('transactions').select('*').order('date', { ascending: false })
@@ -134,7 +134,7 @@ const App: React.FC = () => {
 
         if (leadsData) setLeads(leadsData as unknown as Lead[]);
         if (messagesData) setMessages(messagesData as unknown as Message[]);
-        if (propertiesData) setProperties(propertiesData as unknown as Property[]);
+        if (propertiesData) setProperties((propertiesData as unknown as any[]).map(mapListingToProperty));
         if (tasksData) setTasks(tasksData as unknown as Task[]);
         if (eventsData) setEvents(eventsData as unknown as CalendarEvent[]);
         if (transactionsData) setTransactions(transactionsData as unknown as Transaction[]);
@@ -167,17 +167,46 @@ const App: React.FC = () => {
   };
 
   const addProperty = async (data: Omit<Property, 'id'>) => {
-    const { data: newProp, error } = await supabase.from('properties').insert(data).select().single();
-    if (newProp && !error) setProperties(prev => [newProp as unknown as Property, ...prev]);
+    const listingPayload = {
+      name: data.name,
+      address: data.address,
+      price: data.price,
+      type: data.type,
+      bedrooms: data.bedrooms,
+      bathrooms: data.bathrooms,
+      size: data.size,
+      status: data.status,
+      image_urls: data.images || [],
+      energy_class: data.energyClass,
+      pets_allowed: data.petsAllowed ?? false,
+      coordinates: data.coordinates,
+      created_at: data.createdAt || new Date().toISOString()
+    };
+    const { data: newProp, error } = await supabase.from('listings').insert(listingPayload).select().single();
+    if (newProp && !error) setProperties(prev => [mapListingToProperty(newProp), ...prev]);
   };
 
   const updateProperty = async (id: string, data: Partial<Property>) => {
-    const { error } = await supabase.from('properties').update(data).eq('id', id);
+    const listingPayload = {
+      name: data.name,
+      address: data.address,
+      price: data.price,
+      type: data.type,
+      bedrooms: data.bedrooms,
+      bathrooms: data.bathrooms,
+      size: data.size,
+      status: data.status,
+      image_urls: data.images,
+      energy_class: data.energyClass,
+      pets_allowed: data.petsAllowed,
+      coordinates: data.coordinates
+    };
+    const { error } = await supabase.from('listings').update(listingPayload).eq('id', id);
     if (!error) setProperties(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
   };
 
   const deleteProperty = async (id: string) => {
-    const { error } = await supabase.from('properties').delete().eq('id', id);
+    const { error } = await supabase.from('listings').delete().eq('id', id);
     if (!error) setProperties(prev => prev.filter(p => p.id !== id));
   };
 
@@ -245,6 +274,23 @@ const App: React.FC = () => {
   };
 
   const updateSettings = (newSettings: Partial<AppSettings>) => setSettings(prev => ({ ...prev, ...newSettings }));
+
+  const mapListingToProperty = (row: any): Property => ({
+    id: row.id,
+    name: row.name,
+    address: row.address,
+    price: Number(row.price) || 0,
+    type: row.type,
+    bedrooms: row.bedrooms,
+    bathrooms: row.bathrooms,
+    size: row.size,
+    status: row.status || 'active',
+    images: row.images || row.image_urls || [],
+    energyClass: row.energy_class,
+    petsAllowed: row.pets_allowed,
+    coordinates: row.coordinates,
+    createdAt: row.createdAt || row.created_at || new Date().toISOString()
+  });
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
