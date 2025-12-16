@@ -138,9 +138,10 @@ const FinanceView: React.FC<FinanceViewProps> = ({ transactions, addTransaction,
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="tx-type">Type</label>
               <select
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="tx-type"
                 value={formData.type}
                 onChange={e => setFormData({ ...formData, type: e.target.value as Transaction['type'] })}
               >
@@ -149,23 +150,25 @@ const FinanceView: React.FC<FinanceViewProps> = ({ transactions, addTransaction,
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="tx-date">Date</label>
               <input
                 required
                 type="date"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="tx-date"
                 value={formData.date || ''}
                 onChange={e => setFormData({ ...formData, date: e.target.value })}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Amount (€)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="tx-amount">Amount (€)</label>
               <input
                 required
                 type="number"
                 min="0"
                 step="0.01"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="tx-amount"
                 value={formData.amount ?? ''}
                 onChange={e => setFormData({ ...formData, amount: Number(e.target.value) })}
               />
@@ -173,21 +176,23 @@ const FinanceView: React.FC<FinanceViewProps> = ({ transactions, addTransaction,
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="tx-description">Description</label>
               <input
                 required
                 type="text"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="tx-description"
                 value={formData.description || ''}
                 onChange={e => setFormData({ ...formData, description: e.target.value })}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="tx-category">Category</label>
               <input
                 required
                 type="text"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="tx-category"
                 value={formData.category || ''}
                 onChange={e => setFormData({ ...formData, category: e.target.value })}
               />
@@ -195,19 +200,21 @@ const FinanceView: React.FC<FinanceViewProps> = ({ transactions, addTransaction,
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Method</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="tx-method">Method</label>
               <input
                 type="text"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="tx-method"
                 value={formData.method || ''}
                 onChange={e => setFormData({ ...formData, method: e.target.value })}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Reference</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="tx-reference">Reference</label>
               <input
                 type="text"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="tx-reference"
                 value={formData.reference || ''}
                 onChange={e => setFormData({ ...formData, reference: e.target.value })}
               />

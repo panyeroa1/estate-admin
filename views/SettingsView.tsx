@@ -51,39 +51,43 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, updateSettings })
           <h3 className="font-semibold text-gray-900 mb-4">Profile</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="settings-name">Full Name</label>
               <input
                 type="text"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="settings-name"
                 value={form.profile.name}
                 onChange={e => updateProfile('name', e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="settings-role">Role</label>
               <input
                 type="text"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="settings-role"
                 value={form.profile.role}
                 onChange={e => updateProfile('role', e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="settings-email">Email</label>
               <input
                 type="email"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="settings-email"
                 value={form.profile.email}
                 onChange={e => updateProfile('email', e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="settings-phone">Phone</label>
               <input
                 type="tel"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="settings-phone"
                 value={form.profile.phone}
                 onChange={e => updateProfile('phone', e.target.value)}
               />
@@ -114,9 +118,10 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, updateSettings })
 
         <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <h3 className="font-semibold text-gray-900 mb-2">Language</h3>
+            <label className="font-semibold text-gray-900 mb-2 block" htmlFor="settings-language">Language</label>
             <select
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              id="settings-language"
               value={form.language}
               onChange={e => setForm(prev => ({ ...prev, language: e.target.value }))}
             >
@@ -127,9 +132,10 @@ const SettingsView: React.FC<SettingsViewProps> = ({ settings, updateSettings })
             </select>
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900 mb-2">Timezone</h3>
+            <label className="font-semibold text-gray-900 mb-2 block" htmlFor="settings-timezone">Timezone</label>
             <select
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              id="settings-timezone"
               value={form.timezone}
               onChange={e => setForm(prev => ({ ...prev, timezone: e.target.value }))}
             >

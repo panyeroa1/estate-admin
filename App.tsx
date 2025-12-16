@@ -133,9 +133,9 @@ const App: React.FC = () => {
     const task = tasks.find(t => t.id === id);
     if (!task) return;
     
-    const updates = { 
+    const updates: Partial<Task> = { 
       completed: !task.completed, 
-      completedAt: !task.completed ? new Date().toISOString() : null 
+      completedAt: !task.completed ? new Date().toISOString() : undefined 
     };
     
     const { error } = await supabase.from('tasks').update(updates).eq('id', id);

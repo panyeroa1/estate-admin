@@ -107,9 +107,12 @@ const ReportsView: React.FC<ReportsViewProps> = ({ leads, tasks, events, transac
                     <span>{stage.label}</span>
                     <span>{count} · {pct}%</span>
                   </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-500" style={{ width: `${pct}%` }} />
-                  </div>
+                  <progress
+                    className="w-full h-2 overflow-hidden rounded-full bg-gray-100 [&::-webkit-progress-bar]:bg-gray-100 [&::-webkit-progress-value]:bg-blue-500 [&::-moz-progress-bar]:bg-blue-500"
+                    value={pct}
+                    max={100}
+                    aria-label={`${stage.label} progress`}
+                  />
                 </div>
               );
             })}

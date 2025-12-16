@@ -163,42 +163,46 @@ const InboxView: React.FC<InboxViewProps> = ({ messages, addMessage, updateMessa
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Sender Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="message-sender">Sender Name</label>
               <input
                 type="text"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="message-sender"
                 value={draft.sender}
                 onChange={e => setDraft({ ...draft, sender: e.target.value })}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Sender Email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="message-email">Sender Email</label>
               <input
                 type="email"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="message-email"
                 value={draft.email}
                 onChange={e => setDraft({ ...draft, email: e.target.value })}
               />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="message-subject">Subject</label>
             <input
               type="text"
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              id="message-subject"
               value={draft.subject}
               onChange={e => setDraft({ ...draft, subject: e.target.value })}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="message-body">Message</label>
             <textarea
               required
               rows={5}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              id="message-body"
               value={draft.body}
               onChange={e => setDraft({ ...draft, body: e.target.value })}
             />

@@ -116,52 +116,57 @@ const CalendarView: React.FC<CalendarViewProps> = ({ events, addEvent, deleteEve
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add Event">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="event-title">Title</label>
             <input
               required
               type="text"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              id="event-title"
               value={formData.title || ''}
               onChange={e => setFormData({ ...formData, title: e.target.value })}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="event-description">Description</label>
             <textarea
               rows={3}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              id="event-description"
               value={formData.description || ''}
               onChange={e => setFormData({ ...formData, description: e.target.value })}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="event-date">Date</label>
               <input
                 required
                 type="date"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="event-date"
                 value={formData.date || ''}
                 onChange={e => setFormData({ ...formData, date: e.target.value })}
               />
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Start</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="event-start">Start</label>
                 <input
                   required
                   type="time"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  id="event-start"
                   value={formData.startTime || ''}
                   onChange={e => setFormData({ ...formData, startTime: e.target.value })}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">End</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="event-end">End</label>
                 <input
                   required
                   type="time"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  id="event-end"
                   value={formData.endTime || ''}
                   onChange={e => setFormData({ ...formData, endTime: e.target.value })}
                 />
@@ -172,14 +177,15 @@ const CalendarView: React.FC<CalendarViewProps> = ({ events, addEvent, deleteEve
             <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
             <div className="flex gap-3">
               {colors.map(color => (
-                <label key={color} className={`flex items-center gap-2 px-3 py-2 border rounded-lg cursor-pointer ${formData.color === color ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`}>
+                <label key={color} className={`flex items-center gap-2 px-3 py-2 border rounded-lg cursor-pointer ${formData.color === color ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}`} htmlFor={`event-color-${color}`}>
                   <input
                     type="radio"
                     name="color"
                     value={color}
                     checked={formData.color === color}
                     onChange={() => setFormData({ ...formData, color })}
-                    className="hidden"
+                    id={`event-color-${color}`}
+                    className="sr-only"
                   />
                   <span className={`w-3 h-3 rounded-full ${color === 'blue' ? 'bg-blue-500' : color === 'green' ? 'bg-emerald-500' : color === 'orange' ? 'bg-amber-500' : 'bg-purple-500'}`} />
                   <span className="text-sm capitalize">{color}</span>

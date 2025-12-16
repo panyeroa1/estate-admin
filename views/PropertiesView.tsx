@@ -156,21 +156,23 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="property-name">Name</label>
               <input
                 required
                 type="text"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="property-name"
                 value={formData.name || ''}
                 onChange={e => setFormData({ ...formData, name: e.target.value })}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="property-address">Address</label>
               <input
                 required
                 type="text"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="property-address"
                 value={formData.address || ''}
                 onChange={e => setFormData({ ...formData, address: e.target.value })}
               />
@@ -178,20 +180,22 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Price (€)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="property-price">Price (€)</label>
               <input
                 required
                 type="number"
                 min="0"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="property-price"
                 value={formData.price ?? ''}
                 onChange={e => setFormData({ ...formData, price: Number(e.target.value) })}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="property-type">Type</label>
               <select
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="property-type"
                 value={formData.type}
                 onChange={e => setFormData({ ...formData, type: e.target.value as Property['type'] })}
               >
@@ -199,9 +203,10 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="property-status">Status</label>
               <select
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="property-status"
                 value={formData.status}
                 onChange={e => setFormData({ ...formData, status: e.target.value as Property['status'] })}
               >
@@ -211,31 +216,34 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Bedrooms</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="property-bedrooms">Bedrooms</label>
               <input
                 type="number"
                 min="0"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="property-bedrooms"
                 value={formData.bedrooms ?? ''}
                 onChange={e => setFormData({ ...formData, bedrooms: e.target.value ? Number(e.target.value) : undefined })}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Bathrooms</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="property-bathrooms">Bathrooms</label>
               <input
                 type="number"
                 min="0"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="property-bathrooms"
                 value={formData.bathrooms ?? ''}
                 onChange={e => setFormData({ ...formData, bathrooms: e.target.value ? Number(e.target.value) : undefined })}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Size (m²)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="property-size">Size (m²)</label>
               <input
                 type="number"
                 min="0"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                id="property-size"
                 value={formData.size ?? ''}
                 onChange={e => setFormData({ ...formData, size: e.target.value ? Number(e.target.value) : undefined })}
               />
