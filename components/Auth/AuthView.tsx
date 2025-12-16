@@ -193,8 +193,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ selectedRole = 'admin', onRo
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 overflow-y-auto">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+    <div className="min-h-screen bg-gray-50 flex justify-center py-12 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md flex flex-col max-h-[90vh] overflow-y-auto scrollbar-thin">
         <div className="text-center">
           <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white mx-auto mb-4 shadow-lg shadow-blue-600/20">
             <span className="font-bold text-2xl">E</span>
@@ -229,10 +229,8 @@ export const AuthView: React.FC<AuthViewProps> = ({ selectedRole = 'admin', onRo
             )}
           </p>
         </div>
-      </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-100">
+        <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-100">
           {error && (
             <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg flex items-start gap-2 text-sm">
               <AlertCircle size={16} className="mt-0.5 shrink-0" />

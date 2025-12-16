@@ -17,3 +17,4 @@ ON CONFLICT (id) DO NOTHING;
 -- Alternatively, insert into auth.identities with bcrypt hashes. For quick setup via SQL:
 -- 1) In the dashboard, create these users manually with the desired password (e.g., 000000).
 -- 2) Or use Supabase CLI/Admin API: `supabase auth sign up --email ... --password ...`
+-- Example CLI (service role): supabase auth admin create-user --email renter@eburon.ai --password 000000 --email-confirm true --user-meta '{"role":"renter"}'
