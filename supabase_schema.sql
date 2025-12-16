@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS properties (
   "bathrooms" INTEGER,
   "size" NUMERIC,
   "status" TEXT CHECK (status IN ('active', 'pending', 'sold', 'rented')),
+  "images" TEXT[] DEFAULT '{}'::text[],
   "createdAt" TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 

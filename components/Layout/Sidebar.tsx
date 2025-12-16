@@ -9,6 +9,7 @@ import {
   DollarSign, 
   BarChart2, 
   Settings,
+  Wrench,
   X
 } from 'lucide-react';
 import { ViewState } from '../../types';
@@ -43,6 +44,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onChangeView, isOpen, onC
   const managementItems = [
     { id: 'finance', label: 'Finance', icon: DollarSign },
     { id: 'reports', label: 'Reports', icon: BarChart2 },
+    { id: 'tools', label: 'Tools', icon: Wrench, badge: 0 },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 

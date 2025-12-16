@@ -21,7 +21,9 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
     status: 'active',
     type: 'house',
     price: 0,
+    images: [],
   });
+  const [dragActive, setDragActive] = useState(false);
 
   const filtered = useMemo(() => {
     const query = search.toLowerCase();
@@ -42,6 +44,26 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
     setIsModalOpen(true);
   };
 
+  const fileToDataUrl = (file: File) => {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImages = async (files: FileList | File[]) => {
+    const selected = Array.from(files).filter(f => f.type.startsWith('image/')).slice(0, 8);
+    if (!selected.length) return;
+    const dataUrls = await Promise.all(selected.map(fileToDataUrl));
+    setFormData(prev => ({ ...prev, images: [...(prev.images || []), ...dataUrls] }));
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => ({ ...prev, images: (prev.images || []).filter((_, i) => i !== index) }));
+  };
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!formData.name || !formData.address || formData.price === undefined) return;
@@ -55,6 +77,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
       bathrooms: formData.bathrooms ? Number(formData.bathrooms) : undefined,
       size: formData.size ? Number(formData.size) : undefined,
       status: formData.status || 'active',
+      images: formData.images || [],
       createdAt: formData.createdAt || new Date().toISOString(),
     };
 
@@ -66,7 +89,7 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
 
     setIsModalOpen(false);
     setEditingId(null);
-    setFormData({ status: 'active', type: 'house', price: 0 });
+    setFormData({ status: 'active', type: 'house', price: 0, images: [] });
   };
 
   const StatusBadge = ({ status }: { status: Property['status'] }) => {
@@ -113,6 +136,11 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {filtered.map(property => (
           <div key={property.id} className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+            {property.images && property.images[0] && (
+              <div className="mb-3 rounded-lg overflow-hidden border border-gray-100">
+                <img src={property.images[0]} alt={`${property.name} cover`} className="w-full h-36 object-cover" />
+              </div>
+            )}
             <div className="flex items-start justify-between mb-3">
               <div>
                 <div className="flex items-center gap-2">
@@ -180,6 +208,45 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
                 onChange={e => setFormData({ ...formData, address: e.target.value })}
               />
             </div>
+          </div>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-gray-700">Photos</p>
+            <div
+              onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+              onDragLeave={(e) => { e.preventDefault(); setDragActive(false); }}
+              onDrop={(e) => { e.preventDefault(); setDragActive(false); handleImages(e.dataTransfer.files); }}
+              className={`border-2 border-dashed rounded-lg p-4 transition-all duration-200 ${dragActive ? 'border-blue-400 bg-blue-50' : 'border-gray-200 bg-gray-50'} dark:bg-gray-800 dark:border-gray-700`}
+            >
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div className="text-sm text-gray-600 dark:text-gray-300">Drag & drop up to 8 images, or</div>
+                <label className="px-3 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium shadow hover:shadow-md active:scale-95 cursor-pointer">
+                  Browse
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => e.target.files && handleImages(e.target.files)}
+                  />
+                </label>
+              </div>
+            </div>
+            {formData.images && formData.images.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {formData.images.map((src, idx) => (
+                  <div key={idx} className="relative group rounded-lg overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700">
+                    <img src={src} alt={`Property ${idx + 1}`} className="h-28 w-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(idx)}
+                      className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>

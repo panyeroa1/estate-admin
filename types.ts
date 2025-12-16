@@ -31,6 +31,7 @@ export interface Property {
   bathrooms?: number;
   size?: number;
   status: 'active' | 'pending' | 'sold' | 'rented';
+  images?: string[];
   createdAt: string;
 }
 
@@ -87,7 +88,7 @@ export interface AppSettings {
   timezone: string;
 }
 
-export type ViewState = 'dashboard' | 'inbox' | 'leads' | 'properties' | 'tasks' | 'calendar' | 'finance' | 'reports' | 'settings';
+export type ViewState = 'dashboard' | 'inbox' | 'leads' | 'properties' | 'tasks' | 'calendar' | 'finance' | 'reports' | 'settings' | 'tools';
 
 export interface AppContextType {
   leads: Lead[];

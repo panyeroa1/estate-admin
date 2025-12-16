@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Search, Bell, User, Plus } from 'lucide-react';
+import { Menu, Search, Bell, User, Plus, LogOut } from 'lucide-react';
 import Sidebar from './components/Layout/Sidebar';
 import Modal from './components/UI/Modal';
 import CallWidget from './components/UI/CallWidget';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { supabase } from './lib/supabase';
+import type { Session } from '@supabase/supabase-js';
 import { 
   Lead, Message, Property, Task, CalendarEvent, Transaction, AppSettings, ViewState 
 } from './types';
@@ -19,6 +20,8 @@ import CalendarView from './views/CalendarView';
 import FinanceView from './views/FinanceView';
 import ReportsView from './views/ReportsView';
 import SettingsView from './views/SettingsView';
+import ToolsView from './views/ToolsView';
+import { AuthView } from './components/Auth/AuthView';
 
 // Default Settings
 const defaultSettings: AppSettings = {
@@ -53,9 +56,34 @@ const App: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<Session | null>(null);
+  const [sessionLoading, setSessionLoading] = useState(true);
+
+  // Auth session listener
+  useEffect(() => {
+    const initSession = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (!error) setSession(data.session);
+      setSessionLoading(false);
+    };
+    initSession();
+
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+    });
+
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
+  }, []);
 
   // Fetch initial data
   useEffect(() => {
+    if (sessionLoading) return;
+    if (!session) {
+      setLoading(false);
+      return;
+    }
     const fetchAllData = async () => {
       try {
         setLoading(true);
@@ -89,7 +117,7 @@ const App: React.FC = () => {
     };
 
     fetchAllData();
-  }, []);
+  }, [session, sessionLoading]);
 
   // --- Actions ---
   // Note: We use the returned data from Supabase to ensure we have the real ID and formatted fields
@@ -189,6 +217,11 @@ const App: React.FC = () => {
 
   const updateSettings = (newSettings: Partial<AppSettings>) => setSettings(prev => ({ ...prev, ...newSettings }));
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setSession(null);
+  };
+
   // --- Render Helpers ---
   const renderView = () => {
     if (loading) {
@@ -220,11 +253,24 @@ const App: React.FC = () => {
       case 'finance': return <FinanceView {...props} />;
       case 'reports': return <ReportsView {...props} />;
       case 'settings': return <SettingsView {...props} />;
+      case 'tools': return <ToolsView />;
       default: return <DashboardView {...props} setActiveView={setActiveView} />;
     }
   };
 
   const pageTitle = activeView.charAt(0).toUpperCase() + activeView.slice(1);
+
+  if (sessionLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <AuthView />;
+  }
 
   return (
     <div className={`flex h-screen bg-gray-50 ${settings.darkMode ? 'dark' : ''}`}>
@@ -276,6 +322,14 @@ const App: React.FC = () => {
               <Bell size={20} className="text-gray-600" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
             </div>
+
+            <button
+              onClick={handleSignOut}
+              className="hidden md:inline-flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 transition active:scale-95"
+            >
+              <LogOut size={16} />
+              <span className="text-sm font-medium">Sign out</span>
+            </button>
 
             <div className="flex items-center gap-3 pl-3 border-l border-gray-200 cursor-pointer" onClick={() => setActiveView('settings')}>
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-100 to-emerald-100 border-2 border-white shadow-sm flex items-center justify-center text-emerald-700 font-semibold text-sm">
