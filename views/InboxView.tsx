@@ -6,13 +6,14 @@ import { Message } from '../types';
 interface InboxViewProps {
   messages: Message[];
   addMessage: (message: Omit<Message, 'id'>) => void;
+  updateMessage: (id: string, data: Partial<Message>) => void;
   markMessageRead: (id: string) => void;
   deleteMessage: (id: string) => void;
 }
 
 type MessageFilter = 'all' | 'unread' | 'starred';
 
-const InboxView: React.FC<InboxViewProps> = ({ messages, addMessage, markMessageRead, deleteMessage }) => {
+const InboxView: React.FC<InboxViewProps> = ({ messages, addMessage, updateMessage, markMessageRead, deleteMessage }) => {
   const [filter, setFilter] = useState<MessageFilter>('all');
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -61,15 +62,7 @@ const InboxView: React.FC<InboxViewProps> = ({ messages, addMessage, markMessage
   const toggleStar = (id: string) => {
     const msg = messages.find(m => m.id === id);
     if (!msg) return;
-    addMessage({
-      sender: msg.sender,
-      email: msg.email,
-      subject: msg.subject,
-      body: msg.body,
-      date: msg.date,
-      read: msg.read,
-      starred: !msg.starred,
-    });
+    updateMessage(id, { starred: !msg.starred });
   };
 
   return (

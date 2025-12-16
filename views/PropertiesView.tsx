@@ -65,7 +65,8 @@ const PropertiesView: React.FC<PropertiesViewProps> = ({ properties, addProperty
     }
 
     setIsModalOpen(false);
-    openNewModal();
+    setEditingId(null);
+    setFormData({ status: 'active', type: 'house', price: 0 });
   };
 
   const StatusBadge = ({ status }: { status: Property['status'] }) => {

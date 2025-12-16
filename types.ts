@@ -105,6 +105,7 @@ export interface AppContextType {
   updateLead: (id: string, lead: Partial<Lead>) => void;
   deleteLead: (id: string) => void;
   addMessage: (msg: Omit<Message, 'id'>) => void;
+  updateMessage: (id: string, msg: Partial<Message>) => void;
   markMessageRead: (id: string) => void;
   deleteMessage: (id: string) => void;
   addProperty: (prop: Omit<Property, 'id'>) => void;

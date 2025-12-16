@@ -172,6 +172,11 @@ const App: React.FC = () => {
     if (newMsg && !error) setMessages(prev => [newMsg as unknown as Message, ...prev]);
   };
 
+  const updateMessage = async (id: string, data: Partial<Message>) => {
+    const { error } = await supabase.from('messages').update(data).eq('id', id);
+    if (!error) setMessages(prev => prev.map(m => m.id === id ? { ...m, ...data } : m));
+  };
+
   const markMessageRead = async (id: string) => {
     const { error } = await supabase.from('messages').update({ read: true }).eq('id', id);
     if (!error) setMessages(prev => prev.map(m => m.id === id ? { ...m, read: true } : m));
@@ -201,7 +206,7 @@ const App: React.FC = () => {
       addTask, toggleTaskComplete, deleteTask,
       addEvent, deleteEvent,
       addTransaction, deleteTransaction,
-      addMessage, markMessageRead, deleteMessage,
+      addMessage, updateMessage, markMessageRead, deleteMessage,
       updateSettings
     };
 
