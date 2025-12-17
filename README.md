@@ -11,12 +11,14 @@ Full admin dashboard connected to Supabase with Vite. Follow these steps to prov
 ## 2) Environment variables
 Create a `.env` file locally (or set in Vercel) with:
 ```
-VITE_SUPABASE_URL=https://wmgyanogbyzslfzpqmei.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtZ3lhbm9nYnl6c2xmenBxbWVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxOTQ4MjQsImV4cCI6MjA2Nzc3MDgyNH0.czHsY-rIV0WnPJ1eYXIi1CXey_BRCt5vvP5FzBqyCnc
-NEXT_PUBLIC_SUPABASE_URL=https://wmgyanogbyzslfzpqmei.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndtZ3lhbm9nYnl6c2xmenBxbWVpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxOTQ4MjQsImV4cCI6MjA2Nzc3MDgyNH0.czHsY-rIV0WnPJ1eYXIi1CXey_BRCt5vvP5FzBqyCnc
+VITE_SUPABASE_URL=https://gsjnucljnnqtsjllfufy.supabase.co
+VITE_SUPABASE_ANON_KEY=<YOUR_SUPABASE_ANON_KEY>
+NEXT_PUBLIC_SUPABASE_URL=https://gsjnucljnnqtsjllfufy.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<YOUR_SUPABASE_ANON_KEY>
 ```
 `VITE_` keys are used at build time; `NEXT_PUBLIC_` is kept for compatibility.
+
+You can find the URL and anon key in Supabase Dashboard → Project Settings → API.
 
 ## 3) Run locally
 ```

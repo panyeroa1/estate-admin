@@ -61,6 +61,25 @@ const App: React.FC = () => {
   const [sessionLoading, setSessionLoading] = useState(true);
   const [role, setRole] = useLocalStorage<UserRole>('eburon_role', 'admin');
 
+  const normalizeUserRole = (raw: any): UserRole => {
+    const value = String(raw || '').trim().toLowerCase();
+    if (value === 'admin' || value === 'broker' || value === 'agent') return 'admin';
+    if (value === 'owner') return 'owner';
+    if (value === 'maintenance' || value === 'contractor') return 'maintenance';
+    if (value === 'renter' || value === 'tenant') return 'renter';
+    return 'admin';
+  };
+
+  const isMissingRelationError = (error: any): boolean => {
+    const msg = String(error?.message || '').toLowerCase();
+    const details = String(error?.details || '').toLowerCase();
+    return (
+      msg.includes('relation') && msg.includes('does not exist')
+    ) || (
+      details.includes('relation') && details.includes('does not exist')
+    );
+  };
+
   // Auth session listener
   useEffect(() => {
     const initSession = async () => {
@@ -78,6 +97,83 @@ const App: React.FC = () => {
       listener?.subscription.unsubscribe();
     };
   }, []);
+
+  // Sync role/profile from DB + auth metadata so Admin/Auth reflect real database fields.
+  useEffect(() => {
+    if (!session) return;
+
+    const mapDbName = (row: any, fallbackEmail?: string | null): { name?: string; email?: string } => {
+      const name =
+        row?.full_name ||
+        row?.fullName ||
+        row?.name ||
+        row?.raw_user_meta_data?.full_name ||
+        row?.raw_user_meta_data?.fullName;
+
+      const email = row?.email || fallbackEmail || undefined;
+      return {
+        name: typeof name === 'string' && name.trim() ? name : undefined,
+        email: typeof email === 'string' && email.trim() ? email : undefined,
+      };
+    };
+
+    const fetchUserRow = async (table: 'user_profiles' | 'users') => {
+      const userId = session.user.id;
+      const userEmail = session.user.email;
+
+      const byId = await supabase
+        .from(table)
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (!byId.error && byId.data) return byId.data;
+      if (byId.error && isMissingRelationError(byId.error)) return null;
+
+      // Some older schemas store app users keyed by email instead of auth.users id.
+      if (userEmail) {
+        const byEmail = await supabase
+          .from(table)
+          .select('*')
+          .eq('email', userEmail)
+          .maybeSingle();
+        if (!byEmail.error && byEmail.data) return byEmail.data;
+      }
+
+      return null;
+    };
+
+    const sync = async () => {
+      try {
+        const metaRoleRaw = (session.user.user_metadata as any)?.role;
+        const metaNameRaw = (session.user.user_metadata as any)?.full_name;
+
+        const profileRow = await fetchUserRow('user_profiles');
+        const userRow = profileRow ?? (await fetchUserRow('users'));
+
+        const dbRoleRaw = userRow?.role;
+        const nextRole = normalizeUserRole(dbRoleRaw || metaRoleRaw || role);
+        setRole(nextRole);
+
+        const { name, email } = mapDbName(userRow, session.user.email);
+
+        setSettings(prev => ({
+          ...prev,
+          profile: {
+            ...prev.profile,
+            name: name || (typeof metaNameRaw === 'string' && metaNameRaw.trim() ? metaNameRaw : prev.profile.name),
+            email: email || prev.profile.email,
+          },
+        }));
+      } catch (err) {
+        console.warn('Failed to sync user profile/role:', err);
+      }
+    };
+
+    sync();
+    // Only re-run when the authenticated user changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user?.id]);
 
   // Sync dark mode class to document root/body for Tailwind
   useEffect(() => {
