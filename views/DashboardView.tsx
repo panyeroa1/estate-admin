@@ -39,7 +39,7 @@ const DashboardView: React.FC<DashboardProps> = ({ leads, tasks, messages, trans
     { name: 'Dec', revenue: 6000 },
   ];
 
-  const StatCard = ({ title, value, subtext, icon: Icon, colorClass, onClick }: any) => (
+  const StatCard = ({ title, value, subtext, icon: Icon, colorClass, iconBgClass, onClick }: any) => (
     <div 
       onClick={onClick}
       className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden group"
@@ -50,7 +50,7 @@ const DashboardView: React.FC<DashboardProps> = ({ leads, tasks, messages, trans
           <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{title}</h3>
           <div className="text-2xl font-bold text-gray-900 mt-1">{value}</div>
         </div>
-        <div className={`p-3 rounded-lg ${colorClass.replace('from-', 'bg-').replace('to-', '').split(' ')[0]} bg-opacity-10 text-gray-700`}>
+        <div className={`p-3 rounded-lg ${iconBgClass} bg-opacity-10 text-gray-700`}>
           <Icon size={24} />
         </div>
       </div>
@@ -85,6 +85,7 @@ const DashboardView: React.FC<DashboardProps> = ({ leads, tasks, messages, trans
           subtext={<><ArrowUpRight size={16} className="mr-1" /> +12.5% vs last month</>}
           icon={Euro} 
           colorClass="from-gray-700 to-gray-900"
+          iconBgClass="bg-gray-700"
           onClick={() => setActiveView('finance')}
         />
         <StatCard 
@@ -93,6 +94,7 @@ const DashboardView: React.FC<DashboardProps> = ({ leads, tasks, messages, trans
           subtext={<><TrendingUp size={16} className="mr-1" /> {newLeadsCount} new this week</>}
           icon={TrendingUp} 
           colorClass="from-emerald-400 to-emerald-600"
+          iconBgClass="bg-emerald-400"
           onClick={() => setActiveView('leads')}
         />
         <StatCard 
@@ -101,6 +103,7 @@ const DashboardView: React.FC<DashboardProps> = ({ leads, tasks, messages, trans
           subtext={<><ClipboardList size={16} className="mr-1" /> {tasks.filter(t => t.priority === 'urgent' && !t.completed).length} urgent</>}
           icon={ClipboardList} 
           colorClass="from-amber-400 to-amber-600"
+          iconBgClass="bg-amber-400"
           onClick={() => setActiveView('tasks')}
         />
         <StatCard 
@@ -109,22 +112,26 @@ const DashboardView: React.FC<DashboardProps> = ({ leads, tasks, messages, trans
           subtext={<><Mail size={16} className="mr-1" /> Response needed</>}
           icon={Mail} 
           colorClass="from-blue-400 to-blue-600"
+          iconBgClass="bg-blue-400"
           onClick={() => setActiveView('inbox')}
         />
       </div>
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+        <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100 min-w-0">
           <div className="flex items-center justify-between mb-6">
             <h3 className="font-bold text-gray-900">Revenue Analytics</h3>
-            <select className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg p-2 outline-none">
+            <select
+              aria-label="Revenue analytics time range"
+              className="bg-gray-50 border border-gray-200 text-gray-700 text-sm rounded-lg p-2 outline-none"
+            >
               <option>This Year</option>
               <option>Last Year</option>
             </select>
           </div>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
+          <div className="w-full min-w-0">
+            <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
