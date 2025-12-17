@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: ['index.html', '**/*.{ts,tsx}'],
   darkMode: 'class',
   theme: {
@@ -22,7 +22,6 @@ export default {
   },
   plugins: [],
   safelist: [
-    // Used by DashboardView StatCard icon background mapping
     'bg-gray-700',
     'bg-emerald-400',
     'bg-amber-400',
