@@ -39,6 +39,10 @@ const defaultSettings: AppSettings = {
   timezone: 'UTC'
 };
 
+const APP_CACHE_VERSION = '1';
+const APP_CACHE_VERSION_KEY = 'eburon_cache_version';
+const APP_CACHE_KEYS = ['eburon_settings', 'eburon_role'];
+
 const App: React.FC = () => {
   // --- Persistent State (now Supabase) ---
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -60,6 +64,26 @@ const App: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [sessionLoading, setSessionLoading] = useState(true);
   const [role, setRole] = useLocalStorage<UserRole>('eburon_role', 'admin');
+  const [dataReloadNonce, setDataReloadNonce] = useState(0);
+
+  const triggerDataReload = () => setDataReloadNonce(Date.now());
+
+  const clearAppCache = () => {
+    try {
+      if (typeof window !== 'undefined') {
+        APP_CACHE_KEYS.forEach(key => window.localStorage.removeItem(key));
+        window.localStorage.setItem(APP_CACHE_VERSION_KEY, APP_CACHE_VERSION);
+      }
+    } catch (err) {
+      console.warn('Failed clearing app cache:', err);
+    }
+
+    // Reset app-owned cached state (Supabase auth cache is intentionally untouched).
+    setSettings(defaultSettings);
+    setRole('admin');
+    setActiveView('dashboard');
+    setSidebarOpen(false);
+  };
 
   const normalizeUserRole = (raw: any): UserRole => {
     const value = String(raw || '').trim().toLowerCase();
@@ -96,6 +120,43 @@ const App: React.FC = () => {
     return () => {
       listener?.subscription.unsubscribe();
     };
+  }, []);
+
+  // One-time cache version check: clears app caches after deployments/schema changes.
+  useEffect(() => {
+    try {
+      if (typeof window === 'undefined') return;
+      const current = window.localStorage.getItem(APP_CACHE_VERSION_KEY);
+      if (current !== APP_CACHE_VERSION) {
+        clearAppCache();
+        triggerDataReload();
+      }
+    } catch (err) {
+      console.warn('Failed checking app cache version:', err);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Allow other views/components to request reload/reset without prop drilling.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleClearCache = () => {
+      clearAppCache();
+      triggerDataReload();
+    };
+
+    const handleReload = () => {
+      triggerDataReload();
+    };
+
+    window.addEventListener('eburon:clear-cache', handleClearCache);
+    window.addEventListener('eburon:reload-data', handleReload);
+    return () => {
+      window.removeEventListener('eburon:clear-cache', handleClearCache);
+      window.removeEventListener('eburon:reload-data', handleReload);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Sync role/profile from DB + auth metadata so Admin/Auth reflect real database fields.
@@ -366,7 +427,7 @@ const App: React.FC = () => {
     };
 
     fetchAllData();
-  }, [session, sessionLoading]);
+  }, [session, sessionLoading, dataReloadNonce]);
 
   // --- Actions ---
   // Note: We use the returned data from Supabase to ensure we have the real ID and formatted fields

@@ -41,7 +41,16 @@ const ToolsView: React.FC = () => {
         </div>
         <div className="flex gap-2">
           <button className="px-4 py-2 bg-gray-900 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-150 active:scale-95">Open Console</button>
-          <button className="px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition-all duration-150 active:scale-95">Sync Now</button>
+          <button
+            className="px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 transition-all duration-150 active:scale-95"
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new Event('eburon:clear-cache'));
+              }
+            }}
+          >
+            Sync Now
+          </button>
         </div>
       </div>
 
