@@ -159,10 +159,11 @@ const LeadsView: React.FC<LeadsViewProps> = ({ leads, addLead, deleteLead, updat
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add New Lead">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
+            <label htmlFor="lead-full-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
             <input 
               required
               type="text" 
+              id="lead-full-name"
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               value={formData.name || ''}
               onChange={e => setFormData({...formData, name: e.target.value})}
@@ -170,19 +171,21 @@ const LeadsView: React.FC<LeadsViewProps> = ({ leads, addLead, deleteLead, updat
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+              <label htmlFor="lead-email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
               <input 
                 required
                 type="email" 
+                id="lead-email"
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 value={formData.email || ''}
                 onChange={e => setFormData({...formData, email: e.target.value})}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
+              <label htmlFor="lead-phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
               <input 
                 type="tel" 
+                id="lead-phone"
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 value={formData.phone || ''}
                 onChange={e => setFormData({...formData, phone: e.target.value})}
@@ -191,8 +194,9 @@ const LeadsView: React.FC<LeadsViewProps> = ({ leads, addLead, deleteLead, updat
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+              <label htmlFor="lead-status" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
               <select 
+                id="lead-status"
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 value={formData.status}
                 onChange={e => setFormData({...formData, status: e.target.value as any})}
@@ -204,8 +208,9 @@ const LeadsView: React.FC<LeadsViewProps> = ({ leads, addLead, deleteLead, updat
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Source</label>
+              <label htmlFor="lead-source" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Source</label>
               <select 
+                id="lead-source"
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 value={formData.source}
                 onChange={e => setFormData({...formData, source: e.target.value})}
@@ -218,9 +223,10 @@ const LeadsView: React.FC<LeadsViewProps> = ({ leads, addLead, deleteLead, updat
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+            <label htmlFor="lead-notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
             <textarea 
               rows={3}
+              id="lead-notes"
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               value={formData.notes || ''}
               onChange={e => setFormData({...formData, notes: e.target.value})}
