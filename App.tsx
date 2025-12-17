@@ -94,6 +94,18 @@ const App: React.FC = () => {
     return 'admin';
   };
 
+  const toDbRole = (appRole: UserRole): 'admin' | 'broker' | 'owner' | 'contractor' | 'tenant' => {
+    if (appRole === 'owner') return 'owner';
+    if (appRole === 'maintenance') return 'contractor';
+    if (appRole === 'renter') return 'tenant';
+    return 'admin';
+  };
+
+  const isDbRole = (raw: any): raw is 'admin' | 'broker' | 'owner' | 'contractor' | 'tenant' => {
+    const value = String(raw || '').trim().toLowerCase();
+    return value === 'admin' || value === 'broker' || value === 'owner' || value === 'contractor' || value === 'tenant';
+  };
+
   const isMissingRelationError = (error: any): boolean => {
     const msg = String(error?.message || '').toLowerCase();
     const details = String(error?.details || '').toLowerCase();
@@ -212,9 +224,38 @@ const App: React.FC = () => {
         const profileRow = await fetchUserRow('user_profiles');
         const userRow = profileRow ?? (await fetchUserRow('users'));
 
+        // If there is no profile row yet, try to create it from auth metadata.
+        // This keeps public.user_profiles/users aligned with auth.users (id/email + role/name).
+        if (!userRow) {
+          const inferredAppRole = normalizeUserRole(metaRoleRaw || role);
+          const dbRole = toDbRole(inferredAppRole);
+          const inferredName =
+            (typeof metaNameRaw === 'string' && metaNameRaw.trim() ? metaNameRaw : null) ||
+            (settings?.profile?.name ? settings.profile.name : null);
+
+          const basePayload: any = {
+            id: session.user.id,
+            email: session.user.email ?? null,
+            full_name: inferredName,
+            role: dbRole,
+          };
+
+          // Best-effort: depending on RLS, this may be blocked.
+          await supabase.from('user_profiles').upsert(basePayload, { onConflict: 'id' });
+          await supabase.from('users').upsert({ ...basePayload, name: inferredName }, { onConflict: 'id' });
+        }
+
         const dbRoleRaw = userRow?.role;
         const nextRole = normalizeUserRole(dbRoleRaw || metaRoleRaw || role);
         setRole(nextRole);
+
+        // If a DB profile row exists but has a non-matching role format (e.g. app role values),
+        // normalize it back into the DB-allowed enum values.
+        if (userRow && userRow?.id && userRow?.role && !isDbRole(userRow.role)) {
+          const normalizedDbRole = toDbRole(normalizeUserRole(userRow.role));
+          await supabase.from('user_profiles').update({ role: normalizedDbRole }).eq('id', userRow.id);
+          await supabase.from('users').update({ role: normalizedDbRole }).eq('id', userRow.id);
+        }
 
         const { name, email } = mapDbName(userRow, session.user.email);
 
