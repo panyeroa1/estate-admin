@@ -132,6 +132,74 @@ CREATE TABLE IF NOT EXISTS public.users (
   created_at TIMESTAMPTZ DEFAULT timezone('utc', now())
 );
 
+-- Keep public.user_profiles and public.users aligned with auth.users
+-- Notes:
+-- - auth.users does not have a "role" column; custom fields live in raw_user_meta_data.
+-- - We map app-ish values (maintenance/renter) into DB enum values (contractor/tenant).
+CREATE OR REPLACE FUNCTION public.handle_auth_user_upsert()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  meta_role text;
+  db_role text;
+  meta_full_name text;
+BEGIN
+  meta_role := COALESCE(NEW.raw_user_meta_data->>'role', 'tenant');
+  db_role := CASE lower(meta_role)
+    WHEN 'maintenance' THEN 'contractor'
+    WHEN 'contractor' THEN 'contractor'
+    WHEN 'renter' THEN 'tenant'
+    WHEN 'tenant' THEN 'tenant'
+    WHEN 'broker' THEN 'broker'
+    WHEN 'agent' THEN 'admin'
+    WHEN 'admin' THEN 'admin'
+    WHEN 'owner' THEN 'owner'
+    ELSE 'tenant'
+  END;
+
+  meta_full_name := COALESCE(
+    NEW.raw_user_meta_data->>'full_name',
+    NEW.raw_user_meta_data->>'fullName',
+    NEW.raw_user_meta_data->>'name',
+    NULL
+  );
+
+  INSERT INTO public.user_profiles (id, email, full_name, role, created_at)
+  VALUES (NEW.id, NEW.email, meta_full_name, db_role, timezone('utc', now()))
+  ON CONFLICT (id) DO UPDATE
+  SET
+    email = EXCLUDED.email,
+    full_name = COALESCE(EXCLUDED.full_name, public.user_profiles.full_name),
+    role = COALESCE(EXCLUDED.role, public.user_profiles.role);
+
+  INSERT INTO public.users (id, email, full_name, name, role, created_at)
+  VALUES (NEW.id, NEW.email, meta_full_name, meta_full_name, db_role, timezone('utc', now()))
+  ON CONFLICT (id) DO UPDATE
+  SET
+    email = EXCLUDED.email,
+    full_name = COALESCE(EXCLUDED.full_name, public.users.full_name),
+    name = COALESCE(EXCLUDED.name, public.users.name),
+    role = COALESCE(EXCLUDED.role, public.users.role);
+
+  RETURN NEW;
+END;
+$$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'on_auth_user_upsert') THEN
+    CREATE TRIGGER on_auth_user_upsert
+    AFTER INSERT OR UPDATE OF email, raw_user_meta_data
+    ON auth.users
+    FOR EACH ROW
+    EXECUTE FUNCTION public.handle_auth_user_upsert();
+  END IF;
+END
+$$;
+
 -- Enable RLS
 ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;

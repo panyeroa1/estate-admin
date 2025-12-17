@@ -94,6 +94,16 @@ const App: React.FC = () => {
     return 'admin';
   };
 
+  const inferRoleFromEmail = (email?: string | null): UserRole | null => {
+    const normalized = String(email || '').trim().toLowerCase();
+    if (!normalized) return null;
+    if (normalized === 'admin@eburon.ai') return 'admin';
+    if (normalized === 'owner@eburon.ai') return 'owner';
+    if (normalized === 'maintenance@eburon.ai') return 'maintenance';
+    if (normalized === 'renter@eburon.ai') return 'renter';
+    return null;
+  };
+
   const toDbRole = (appRole: UserRole): 'admin' | 'broker' | 'owner' | 'contractor' | 'tenant' => {
     if (appRole === 'owner') return 'owner';
     if (appRole === 'maintenance') return 'contractor';
@@ -227,7 +237,8 @@ const App: React.FC = () => {
         // If there is no profile row yet, try to create it from auth metadata.
         // This keeps public.user_profiles/users aligned with auth.users (id/email + role/name).
         if (!userRow) {
-          const inferredAppRole = normalizeUserRole(metaRoleRaw || role);
+          const inferredByEmail = inferRoleFromEmail(session.user.email);
+          const inferredAppRole = normalizeUserRole(metaRoleRaw || inferredByEmail || role);
           const dbRole = toDbRole(inferredAppRole);
           const inferredName =
             (typeof metaNameRaw === 'string' && metaNameRaw.trim() ? metaNameRaw : null) ||
