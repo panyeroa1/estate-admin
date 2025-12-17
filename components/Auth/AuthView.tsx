@@ -37,6 +37,17 @@ export const AuthView: React.FC<AuthViewProps> = ({ selectedRole = 'admin', onRo
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
+  const supabaseProjectRef = (() => {
+    try {
+      const url = import.meta.env.VITE_SUPABASE_URL || import.meta.env.NEXT_PUBLIC_SUPABASE_URL;
+      if (!url) return null;
+      const hostname = new URL(url).hostname;
+      return hostname.split('.')[0] || null;
+    } catch {
+      return null;
+    }
+  })();
+
   // Form State
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -115,7 +126,14 @@ export const AuthView: React.FC<AuthViewProps> = ({ selectedRole = 'admin', onRo
       });
       if (error) throw error;
     } catch (err: any) {
-      setError(err.message);
+      const msg = String(err?.message || 'Login failed');
+      if (msg.toLowerCase().includes('invalid login credentials')) {
+        setError(
+          `Invalid login credentials. Make sure this user exists in the current Supabase project${supabaseProjectRef ? ` (${supabaseProjectRef})` : ''} and the password is correct.`
+        );
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }

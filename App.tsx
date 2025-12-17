@@ -47,6 +47,7 @@ const App: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [propertyTable, setPropertyTable] = useState<'listings' | 'properties'>('listings');
   
   // Keep settings local for now
   const [settings, setSettings] = useLocalStorage<AppSettings>('eburon_settings', defaultSettings);
@@ -113,31 +114,154 @@ const App: React.FC = () => {
       setLoading(false);
       return;
     }
+
+    const parseSortableDate = (value: any): number => {
+      if (!value) return 0;
+      const ms = new Date(String(value)).getTime();
+      return Number.isFinite(ms) ? ms : 0;
+    };
+
+    const mapLeadRow = (row: any): Lead => ({
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      phone: row.phone ?? '',
+      status: row.status ?? 'new',
+      source: row.source ?? '',
+      notes: row.notes ?? '',
+      lastContact: row.lastContact || row.lastcontact || row.last_contact || row.createdAt || row.createdat || row.created_at || new Date().toISOString(),
+      createdAt: row.createdAt || row.createdat || row.created_at || new Date().toISOString(),
+    });
+
+    const mapTaskRow = (row: any): Task => ({
+      id: row.id,
+      title: row.title,
+      description: row.description ?? '',
+      dueDate: row.dueDate || row.duedate || row.due_date || new Date().toISOString(),
+      priority: row.priority ?? 'medium',
+      category: row.category ?? 'General',
+      completed: Boolean(row.completed),
+      completedAt: row.completedAt || row.completedat || row.completed_at,
+      createdAt: row.createdAt || row.createdat || row.created_at || new Date().toISOString(),
+    });
+
+    const mapEventRow = (row: any): CalendarEvent => ({
+      id: row.id,
+      title: row.title,
+      description: row.description ?? '',
+      date: row.date,
+      startTime: row.startTime || row.starttime || row.start_time || '09:00',
+      endTime: row.endTime || row.endtime || row.end_time || '10:00',
+      color: row.color ?? 'blue',
+      duration: row.duration ?? '30m',
+      createdAt: row.createdAt || row.createdat || row.created_at || new Date().toISOString(),
+    });
+
+    const mapTransactionRow = (row: any): Transaction => ({
+      id: row.id,
+      date: row.date,
+      description: row.description,
+      type: row.type,
+      category: row.category ?? '',
+      amount: Number(row.amount) || 0,
+      method: row.method ?? '',
+      reference: row.reference ?? undefined,
+      createdAt: row.createdAt || row.createdat || row.created_at || new Date().toISOString(),
+    });
+
+    const mapListingToProperty = (row: any): Property => ({
+      id: row.id,
+      name: row.name,
+      address: row.address,
+      price: Number(row.price) || 0,
+      type: row.type,
+      bedrooms: row.bedrooms,
+      bathrooms: row.bathrooms,
+      size: row.size,
+      status: row.status || 'active',
+      images: row.images || row.image_urls || [],
+      energyClass: row.energy_class ?? row.energyClass,
+      petsAllowed: row.pets_allowed ?? row.petsAllowed,
+      coordinates: row.coordinates,
+      createdAt: row.createdAt || row.createdat || row.created_at || new Date().toISOString(),
+    });
+
+    const isMissingRelation = (error: any): boolean => {
+      const msg = String(error?.message || '').toLowerCase();
+      const details = String(error?.details || '').toLowerCase();
+      return (
+        msg.includes('relation') && msg.includes('does not exist')
+      ) || (
+        details.includes('relation') && details.includes('does not exist')
+      );
+    };
+
     const fetchAllData = async () => {
       try {
         setLoading(true);
-        const [
-          { data: leadsData },
-          { data: messagesData },
-          { data: propertiesData },
-          { data: tasksData },
-          { data: eventsData },
-          { data: transactionsData }
-        ] = await Promise.all([
-          supabase.from('leads').select('*').order('createdAt', { ascending: false }),
-          supabase.from('messages').select('*').order('date', { ascending: false }),
-          supabase.from('listings').select('*').order('created_at', { ascending: false }),
-          supabase.from('tasks').select('*').order('createdAt', { ascending: false }),
-          supabase.from('events').select('*').order('date', { ascending: true }),
-          supabase.from('transactions').select('*').order('date', { ascending: false })
+
+        const [leadsRes, messagesRes, tasksRes, eventsRes, transactionsRes] = await Promise.all([
+          supabase.from('leads').select('*'),
+          supabase.from('messages').select('*'),
+          supabase.from('tasks').select('*'),
+          supabase.from('events').select('*'),
+          supabase.from('transactions').select('*'),
         ]);
 
-        if (leadsData) setLeads(leadsData as unknown as Lead[]);
-        if (messagesData) setMessages(messagesData as unknown as Message[]);
-        if (propertiesData) setProperties((propertiesData as unknown as any[]).map(mapListingToProperty));
-        if (tasksData) setTasks(tasksData as unknown as Task[]);
-        if (eventsData) setEvents(eventsData as unknown as CalendarEvent[]);
-        if (transactionsData) setTransactions(transactionsData as unknown as Transaction[]);
+        if (leadsRes.data) {
+          const normalized = (leadsRes.data as any[]).map(mapLeadRow);
+          normalized.sort((a, b) => parseSortableDate(b.createdAt) - parseSortableDate(a.createdAt));
+          setLeads(normalized);
+        }
+
+        if (messagesRes.data) {
+          const normalized = messagesRes.data as unknown as Message[];
+          normalized.sort((a, b) => parseSortableDate(b.date) - parseSortableDate(a.date));
+          setMessages(normalized);
+        }
+
+        if (tasksRes.data) {
+          const normalized = (tasksRes.data as any[]).map(mapTaskRow);
+          normalized.sort((a, b) => parseSortableDate(b.createdAt) - parseSortableDate(a.createdAt));
+          setTasks(normalized);
+        }
+
+        if (eventsRes.data) {
+          const normalized = (eventsRes.data as any[]).map(mapEventRow);
+          normalized.sort((a, b) => {
+            const aKey = parseSortableDate(`${a.date} ${a.startTime}`);
+            const bKey = parseSortableDate(`${b.date} ${b.startTime}`);
+            return aKey - bKey;
+          });
+          setEvents(normalized);
+        }
+
+        if (transactionsRes.data) {
+          const normalized = (transactionsRes.data as any[]).map(mapTransactionRow);
+          normalized.sort((a, b) => parseSortableDate(b.date) - parseSortableDate(a.date));
+          setTransactions(normalized);
+        }
+
+        // Properties: prefer listings; fall back to legacy properties if listings is missing or empty.
+        const listingsRes = await supabase.from('listings').select('*');
+        if (!listingsRes.error && listingsRes.data && listingsRes.data.length > 0) {
+          setPropertyTable('listings');
+          setProperties((listingsRes.data as any[]).map(mapListingToProperty));
+        } else {
+          const legacyRes = await supabase.from('properties').select('*');
+          if (!legacyRes.error && legacyRes.data && legacyRes.data.length > 0) {
+            setPropertyTable('properties');
+            setProperties((legacyRes.data as any[]).map(mapListingToProperty));
+          } else if (!listingsRes.error && listingsRes.data) {
+            // listings exists but is empty
+            setPropertyTable('listings');
+            setProperties([]);
+          } else if (isMissingRelation(listingsRes.error) && !legacyRes.error && legacyRes.data) {
+            // listings table doesn't exist, but legacy does
+            setPropertyTable('properties');
+            setProperties((legacyRes.data as any[]).map(mapListingToProperty));
+          }
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -151,13 +275,126 @@ const App: React.FC = () => {
   // --- Actions ---
   // Note: We use the returned data from Supabase to ensure we have the real ID and formatted fields
 
+  const isSchemaCacheColumnError = (error: any): boolean => {
+    const msg = String(error?.message || '').toLowerCase();
+    return (
+      (msg.includes('schema cache') && msg.includes('could not find')) ||
+      (msg.includes('column') && msg.includes('does not exist')) ||
+      (msg.includes('could not find') && msg.includes('column'))
+    );
+  };
+
+  const insertWithFallback = async <T,>(
+    table: string,
+    primary: Record<string, any>,
+    fallback: Record<string, any>,
+  ): Promise<{ data: T | null; error: any | null }> => {
+    const first = await supabase.from(table).insert(primary).select().single();
+    if (!first.error) return { data: first.data as T, error: null };
+    if (!isSchemaCacheColumnError(first.error)) return { data: null, error: first.error };
+    const second = await supabase.from(table).insert(fallback).select().single();
+    return { data: (second.data as T) ?? null, error: second.error };
+  };
+
+  const updateWithFallback = async (
+    table: string,
+    id: string,
+    primary: Record<string, any>,
+    fallback: Record<string, any>,
+  ): Promise<{ error: any | null }> => {
+    const first = await supabase.from(table).update(primary).eq('id', id);
+    if (!first.error) return { error: null };
+    if (!isSchemaCacheColumnError(first.error)) return { error: first.error };
+    const second = await supabase.from(table).update(fallback).eq('id', id);
+    return { error: second.error };
+  };
+
+  const mapLeadRow = (row: any): Lead => ({
+    id: row.id,
+    name: row.name,
+    email: row.email,
+    phone: row.phone ?? '',
+    status: row.status ?? 'new',
+    source: row.source ?? '',
+    notes: row.notes ?? '',
+    lastContact: row.lastContact || row.lastcontact || row.last_contact || row.createdAt || row.createdat || row.created_at || new Date().toISOString(),
+    createdAt: row.createdAt || row.createdat || row.created_at || new Date().toISOString(),
+  });
+
+  const mapTaskRow = (row: any): Task => ({
+    id: row.id,
+    title: row.title,
+    description: row.description ?? '',
+    dueDate: row.dueDate || row.duedate || row.due_date || new Date().toISOString(),
+    priority: row.priority ?? 'medium',
+    category: row.category ?? 'General',
+    completed: Boolean(row.completed),
+    completedAt: row.completedAt || row.completedat || row.completed_at,
+    createdAt: row.createdAt || row.createdat || row.created_at || new Date().toISOString(),
+  });
+
+  const mapEventRow = (row: any): CalendarEvent => ({
+    id: row.id,
+    title: row.title,
+    description: row.description ?? '',
+    date: row.date,
+    startTime: row.startTime || row.starttime || row.start_time || '09:00',
+    endTime: row.endTime || row.endtime || row.end_time || '10:00',
+    color: row.color ?? 'blue',
+    duration: row.duration ?? '30m',
+    createdAt: row.createdAt || row.createdat || row.created_at || new Date().toISOString(),
+  });
+
+  const mapTransactionRow = (row: any): Transaction => ({
+    id: row.id,
+    date: row.date,
+    description: row.description,
+    type: row.type,
+    category: row.category ?? '',
+    amount: Number(row.amount) || 0,
+    method: row.method ?? '',
+    reference: row.reference ?? undefined,
+    createdAt: row.createdAt || row.createdat || row.created_at || new Date().toISOString(),
+  });
+
   const addLead = async (data: Omit<Lead, 'id'>) => {
-    const { data: newLead, error } = await supabase.from('leads').insert(data).select().single();
-    if (newLead && !error) setLeads(prev => [newLead as unknown as Lead, ...prev]);
+    const snake = {
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      status: data.status,
+      source: data.source,
+      notes: data.notes,
+      lastcontact: data.lastContact,
+      createdat: data.createdAt,
+    };
+    const camel = {
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      status: data.status,
+      source: data.source,
+      notes: data.notes,
+      lastContact: data.lastContact,
+      createdAt: data.createdAt,
+    };
+    const { data: newLead, error } = await insertWithFallback<any>('leads', snake, camel);
+    if (newLead && !error) setLeads(prev => [mapLeadRow(newLead), ...prev]);
   };
 
   const updateLead = async (id: string, data: Partial<Lead>) => {
-    const { error } = await supabase.from('leads').update(data).eq('id', id);
+    const snake: any = {};
+    const camel: any = {};
+    if (data.name !== undefined) { snake.name = data.name; camel.name = data.name; }
+    if (data.email !== undefined) { snake.email = data.email; camel.email = data.email; }
+    if (data.phone !== undefined) { snake.phone = data.phone; camel.phone = data.phone; }
+    if (data.status !== undefined) { snake.status = data.status; camel.status = data.status; }
+    if (data.source !== undefined) { snake.source = data.source; camel.source = data.source; }
+    if (data.notes !== undefined) { snake.notes = data.notes; camel.notes = data.notes; }
+    if (data.lastContact !== undefined) { snake.lastcontact = data.lastContact; camel.lastContact = data.lastContact; }
+    if (data.createdAt !== undefined) { snake.createdat = data.createdAt; camel.createdAt = data.createdAt; }
+
+    const { error } = await updateWithFallback('leads', id, snake, camel);
     if (!error) setLeads(prev => prev.map(l => l.id === id ? { ...l, ...data } : l));
   };
 
@@ -167,6 +404,24 @@ const App: React.FC = () => {
   };
 
   const addProperty = async (data: Omit<Property, 'id'>) => {
+    if (propertyTable === 'properties') {
+      const legacyPayload = {
+        name: data.name,
+        address: data.address,
+        price: data.price,
+        type: data.type,
+        bedrooms: data.bedrooms,
+        bathrooms: data.bathrooms,
+        size: data.size,
+        status: data.status,
+        images: data.images || [],
+        createdat: data.createdAt || new Date().toISOString(),
+      };
+      const { data: newProp, error } = await supabase.from('properties').insert(legacyPayload).select().single();
+      if (newProp && !error) setProperties(prev => [mapListingToProperty(newProp), ...prev]);
+      return;
+    }
+
     const listingPayload = {
       name: data.name,
       address: data.address,
@@ -180,13 +435,30 @@ const App: React.FC = () => {
       energy_class: data.energyClass,
       pets_allowed: data.petsAllowed ?? false,
       coordinates: data.coordinates,
-      created_at: data.createdAt || new Date().toISOString()
+      created_at: data.createdAt || new Date().toISOString(),
     };
     const { data: newProp, error } = await supabase.from('listings').insert(listingPayload).select().single();
     if (newProp && !error) setProperties(prev => [mapListingToProperty(newProp), ...prev]);
   };
 
   const updateProperty = async (id: string, data: Partial<Property>) => {
+    if (propertyTable === 'properties') {
+      const legacyPayload: any = {
+        name: data.name,
+        address: data.address,
+        price: data.price,
+        type: data.type,
+        bedrooms: data.bedrooms,
+        bathrooms: data.bathrooms,
+        size: data.size,
+        status: data.status,
+        images: data.images,
+      };
+      const { error } = await supabase.from('properties').update(legacyPayload).eq('id', id);
+      if (!error) setProperties(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
+      return;
+    }
+
     const listingPayload = {
       name: data.name,
       address: data.address,
@@ -199,20 +471,40 @@ const App: React.FC = () => {
       image_urls: data.images,
       energy_class: data.energyClass,
       pets_allowed: data.petsAllowed,
-      coordinates: data.coordinates
+      coordinates: data.coordinates,
     };
     const { error } = await supabase.from('listings').update(listingPayload).eq('id', id);
     if (!error) setProperties(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
   };
 
   const deleteProperty = async (id: string) => {
-    const { error } = await supabase.from('listings').delete().eq('id', id);
+    const { error } = await supabase.from(propertyTable).delete().eq('id', id);
     if (!error) setProperties(prev => prev.filter(p => p.id !== id));
   };
 
   const addTask = async (data: Omit<Task, 'id'>) => {
-    const { data: newTask, error } = await supabase.from('tasks').insert(data).select().single();
-    if (newTask && !error) setTasks(prev => [newTask as unknown as Task, ...prev]);
+    const snake = {
+      title: data.title,
+      description: data.description,
+      duedate: data.dueDate,
+      priority: data.priority,
+      category: data.category,
+      completed: data.completed,
+      completedat: data.completedAt,
+      createdat: data.createdAt,
+    };
+    const camel = {
+      title: data.title,
+      description: data.description,
+      dueDate: data.dueDate,
+      priority: data.priority,
+      category: data.category,
+      completed: data.completed,
+      completedAt: data.completedAt,
+      createdAt: data.createdAt,
+    };
+    const { data: newTask, error } = await insertWithFallback<any>('tasks', snake, camel);
+    if (newTask && !error) setTasks(prev => [mapTaskRow(newTask), ...prev]);
   };
 
   const toggleTaskComplete = async (id: string) => {
@@ -224,7 +516,15 @@ const App: React.FC = () => {
       completedAt: !task.completed ? new Date().toISOString() : undefined 
     };
     
-    const { error } = await supabase.from('tasks').update(updates).eq('id', id);
+    const snake = {
+      completed: updates.completed,
+      completedat: updates.completedAt,
+    };
+    const camel = {
+      completed: updates.completed,
+      completedAt: updates.completedAt,
+    };
+    const { error } = await updateWithFallback('tasks', id, snake, camel);
     if (!error) setTasks(prev => prev.map(t => t.id === id ? { ...t, ...updates } : t));
   };
 
@@ -234,8 +534,28 @@ const App: React.FC = () => {
   };
 
   const addEvent = async (data: Omit<CalendarEvent, 'id'>) => {
-    const { data: newEvent, error } = await supabase.from('events').insert(data).select().single();
-    if (newEvent && !error) setEvents(prev => [...prev, newEvent as unknown as CalendarEvent]);
+    const snake = {
+      title: data.title,
+      description: data.description,
+      date: data.date,
+      starttime: data.startTime,
+      endtime: data.endTime,
+      color: data.color,
+      duration: data.duration,
+      createdat: data.createdAt,
+    };
+    const camel = {
+      title: data.title,
+      description: data.description,
+      date: data.date,
+      startTime: data.startTime,
+      endTime: data.endTime,
+      color: data.color,
+      duration: data.duration,
+      createdAt: data.createdAt,
+    };
+    const { data: newEvent, error } = await insertWithFallback<any>('events', snake, camel);
+    if (newEvent && !error) setEvents(prev => [...prev, mapEventRow(newEvent)]);
   };
 
   const deleteEvent = async (id: string) => {
@@ -244,8 +564,28 @@ const App: React.FC = () => {
   };
 
   const addTransaction = async (data: Omit<Transaction, 'id'>) => {
-    const { data: newTx, error } = await supabase.from('transactions').insert(data).select().single();
-    if (newTx && !error) setTransactions(prev => [newTx as unknown as Transaction, ...prev]);
+    const snake = {
+      date: data.date,
+      description: data.description,
+      type: data.type,
+      category: data.category,
+      amount: data.amount,
+      method: data.method,
+      reference: data.reference,
+      createdat: data.createdAt,
+    };
+    const camel = {
+      date: data.date,
+      description: data.description,
+      type: data.type,
+      category: data.category,
+      amount: data.amount,
+      method: data.method,
+      reference: data.reference,
+      createdAt: data.createdAt,
+    };
+    const { data: newTx, error } = await insertWithFallback<any>('transactions', snake, camel);
+    if (newTx && !error) setTransactions(prev => [mapTransactionRow(newTx), ...prev]);
   };
 
   const deleteTransaction = async (id: string) => {
@@ -286,10 +626,10 @@ const App: React.FC = () => {
     size: row.size,
     status: row.status || 'active',
     images: row.images || row.image_urls || [],
-    energyClass: row.energy_class,
-    petsAllowed: row.pets_allowed,
+    energyClass: row.energy_class ?? row.energyClass,
+    petsAllowed: row.pets_allowed ?? row.petsAllowed,
     coordinates: row.coordinates,
-    createdAt: row.createdAt || row.created_at || new Date().toISOString()
+    createdAt: row.createdAt || row.createdat || row.created_at || new Date().toISOString(),
   });
 
   const handleSignOut = async () => {
